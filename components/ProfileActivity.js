@@ -2,13 +2,13 @@ import React, { Component } from "react";
 import { Platform, StyleSheet, Text, View, Button } from "react-native";
 
 class ProfileActivity extends React.Component {
-  static navigationOptions = {
-    title: "Profile",
-    headerStyle: {
-      backgroundColor: "#03A9F4"
-    },
-    headerTintColor: '#fff',
-  };
+  // static navigationOptions = {
+  //   title: "Profile",
+  //   headerStyle: {
+  //     backgroundColor: "#03A9F4"
+  //   },
+  //   headerTintColor: '#fff',
+  // };
 
   render() {
     return (

@@ -2,16 +2,19 @@ import React, { Component } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { createStackNavigator  } from 'react-navigation-stack';
 import { createAppContainer  } from 'react-navigation';
-import HomeActivity from './components/HomeActivity';
+import LoginActivity from './components/LoginActivity';
 import ProfileActivity from './components/ProfileActivity';
+import SignupActivity from './components/SignupActivity';
 
 const NavStack  = createStackNavigator(
 {
-  Home: { screen: HomeActivity },
+  Login: { screen: LoginActivity },
   Profile: { screen: ProfileActivity },
+  Signup: { screen: SignupActivity },
 },
 {
-    initialRouteName: 'Home',
+    initialRouteName: 'Login',
+    headerMode: 'none'
 }
 
 );
