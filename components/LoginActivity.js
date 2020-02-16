@@ -10,20 +10,21 @@ import {
   TextInput,
   ActivityIndicator,
   Image,
-  ImageBackground
+  ImageBackground,
+  AsyncStorage
 } from 'react-native';
 
-class HomeActivity extends Component {
+class LoginActivity extends Component {
   constructor(props) {
     super(props);
-    this.registerCall = this.registerCall.bind(this);
+    this.loginCall = this.loginCall.bind(this);
     this.state = {
       JSONResult: '',
       username: '',
       password: '',
       status: '',
       wholeResult: '',
-      baseUrl: 'http://172.31.1.101:1080',
+      baseUrl: 'http://kd.smeezy.com/api',
     };
   }
 
@@ -34,9 +35,9 @@ class HomeActivity extends Component {
       if (this.state.password != '') {
         //  Check for the Email TextInput
         //  alert('Success');
-       // this.showLoading();
-        //this.registerCall();
-         this.props.navigation.navigate('Signup')
+        this.showLoading();
+        this.loginCall();
+        //this.props.navigation.navigate('Signup')
       } else {
         alert('Please Enter Password');
       }
@@ -56,37 +57,95 @@ class HomeActivity extends Component {
     // },
   };
 
-  registerCall() {
+  // loginCall() {
+  //   var that = this;
+  //   var url = that.state.baseUrl; 
+  //   console.log('url:' + url);
+  //   fetch(url, {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({
+  //       methodName:'login',
+  //       email: this.state.username,
+  //       password: this.state.password
+  //     }),
+  //   })
+  //     .then(response => response.json())
+  //     .then(responseData => {
+  //       this.hideLoading();
+  //       //  this.props.navigation.navigate('Profile')
+  //       alert(JSON.stringify(responseData));
+  //       console.log('response object:', responseData);
+  //     })
+  //     .catch(error => {
+  //       this.hideLoading();
+  //       console.error(error);
+  //     })
+
+  //     .done();
+  // }
+
+  loginCall() {
+
+    let formdata = new FormData();
+    formdata.append("methodName", 'login')
+    formdata.append("email", this.state.username)
+    formdata.append("password", this.state.password)
+
     var that = this;
-    var url = that.state.baseUrl + '/publicrest/rest/authenticate_storekeeper';
+    var url = that.state.baseUrl;
     console.log('url:' + url);
     fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'multipart/form-data',
       },
-      body: JSON.stringify({
-        userName: this.state.username,
-        password: this.state.password,
-        deviceId: '123',
-        deviceToken: '123',
-      }),
-    })
-      .then(response => response.json())
-      .then(responseData => {
+      body: formdata
+    }).then((response) => response.json())
+      .then(responseJson => {
         this.hideLoading();
-        //  this.props.navigation.navigate('Profile')
-        alert(JSON.stringify(responseData));
-        console.log('response object:', responseData);
-      })
-      .catch(error => {
+        if (responseJson.replyStatus == 'success') {	
+     
+          this.saveLoginUserId(responseJson.data.id.toString());
+          this.getLoginUserId();
+         
+      
+          this.props.navigation.navigate('Home', {
+              username: responseJson.data.email
+          })
+      } else {
+          alert(responseJson.replyMessage);
+      }
+        console.log("server response===" + JSON.stringify(responseJson))
+        console.log("server STATUS  ===" + responseJson.replyStatus)
+        console.log("server MESSAGE  ===" + responseJson.replyMessage)
+        console.log("server value  ===" + responseJson.data.email)
+      }).catch(err => {
         this.hideLoading();
-        console.error(error);
+        console.log(err)
       })
 
-      .done();
   }
 
+  async saveLoginUserId(value) {
+    try {
+      await AsyncStorage.setItem('@user_id', value);
+    } catch (error) {
+      console.log("Error saving data" + error);
+    }
+  }
+
+  async getLoginUserId() {
+    try {
+      const value = await AsyncStorage.getItem('@user_id');
+      console.log("value get new=====" + value);
+    } catch (error) {
+      console.log("Error retrieving data" + error);
+    }
+  }
+ 
   showLoading() {
     this.setState({ loading: true });
   }
@@ -107,7 +166,6 @@ class HomeActivity extends Component {
           <View style={styles.container}>
 
             <TextInput
-              //   value={this.state.username}
               placeholderTextColor="#7f8ec5"
               underlineColorAndroid='transparent'
               onChangeText={username => this.setState({ username })}
@@ -115,7 +173,6 @@ class HomeActivity extends Component {
               style={styles.input}
             />
             <TextInput
-              //   value={this.state.password}
               placeholder={'Enter Password'}
               placeholderTextColor="#7f8ec5"
               underlineColorAndroid='transparent'
@@ -138,27 +195,33 @@ class HomeActivity extends Component {
               <Text style={styles.TextStyle}> LOGIN </Text>
             </TouchableOpacity>
 
-            <Text style={styles.normalText}>Forgot Password?</Text>
-
-            <Text style={styles.normalText}>or seprator?</Text>
+            <Text style={styles.normalText} onPress={() => this.props.navigation.navigate('ForgotPassword')}>Forgot Password?</Text>
 
 
-            <TouchableOpacity
-              style={styles.FbButtonStyle}
-              activeOpacity={.5}>
-{
-              // <Image
-              //   source={{
-              //     uri:
-              //       'https://raw.githubusercontent.com/AboutReact/sampleresource/master/facebook.png',
-              //   }}
-              //   style={styles.ImageIconStyle}
-              // />
-              
-              }
 
-              <Text style={styles.TextStyle}>Sign in with facebook</Text>
+            <Image source={require('../images/or_icon.png')}
+              style={{ width: 200, height: 30, margin: 16 }} />
+
+            <TouchableOpacity style={styles.FbButtonStyle} activeOpacity={0.5}>
+
+              <Image
+                source={require('../images/fb_login_icon.png')}
+                style={styles.ImageIconStyle}
+              />
+
+              {/* <View style={styles.SeparatorLine} /> */}
+
+              <Text style={styles.TextStyleFb}> Login Using Facebook </Text>
+
             </TouchableOpacity>
+
+             <Text style={styles.multiColorText} >
+              Don't have an account? 
+             <Text style={styles.normalText} onPress={() => this.props.navigation.navigate('Signup')}>
+                 Sign Up
+             </Text>
+            </Text>
+            {/* <Text style={styles.normalText} onPress={() => this.props.navigation.navigate('Signup')}>Don't have an account? Sign Up</Text> */}
           </View>
         </ImageBackground>
       </View>
@@ -198,19 +261,21 @@ const styles = StyleSheet.create({
   SubmitButtonStyle: {
     marginTop: 20,
     width: 300,
-    height: 44,
+    height: 40,
     padding: 10,
     backgroundColor: '#71C488',
     borderRadius: 20,
     alignItems: 'center'
   },
   FbButtonStyle: {
-    backgroundColor: '#1878f2',
-    height: 44,
-    width: 300,
-    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#485a96',
+    borderWidth: .5,
+    borderColor: '#fff',
+    height: 40,
     borderRadius: 20,
-    alignItems: 'center'
+    margin: 5,
   },
   ImageIconStyle: {
     padding: 10,
@@ -228,7 +293,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   fbText: {
-    textAlign : 'center',
+    textAlign: 'center',
     fontSize: 15,
     color: 'white'
   },
@@ -238,10 +303,29 @@ const styles = StyleSheet.create({
     margin: 20,
     color: '#71C488'
   },
+  multiColorText: {
+    fontSize: 15,
+    textAlign: 'center',
+    margin: 20,
+    color: '#809aba'
+  },
   imgBackground: {
     width: '100%',
     height: '100%',
     flex: 1
+  },
+  SeparatorLine: {
+
+    backgroundColor: '#fff',
+    width: 1,
+    height: 40
+
+  },
+  TextStyleFb: {
+    color: "#fff",
+    marginBottom: 4,
+    marginRight: 20,
+
   },
   image: {
     height: 50,
@@ -251,4 +335,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeActivity;
+export default LoginActivity;

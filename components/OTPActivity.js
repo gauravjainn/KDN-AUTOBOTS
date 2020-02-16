@@ -10,21 +10,17 @@ import {
     TextInput,
     ActivityIndicator,
     Image,
-    ImageBackground
+    ImageBackground,
+    AsyncStorage
 } from 'react-native';
 
-
-class SignupActivity extends Component {
+class OTPActivity extends Component {
     constructor(props) {
         super(props);
-        this.registerCall = this.registerCall.bind(this);
+        this.otpCall = this.otpCall.bind(this);
         this.state = {
             JSONResult: '',
-            username: '',
-            email: '',
-            password: '',
-            gender: '',
-            mobilenumber: '',
+            otp: '',
             status: '',
             wholeResult: '',
             baseUrl: 'http://kd.smeezy.com/api',
@@ -32,33 +28,24 @@ class SignupActivity extends Component {
     }
 
     CheckTextInput = () => {
-        if (this.state.username != '') {
-            if (this.state.email != '') {
-                if (this.state.password != '') {
-                    if (this.state.gender != '') {
-                        if (this.state.mobilenumber != '') {
-                            this.showLoading();
-                            this.registerCall();
-                        }
-                        else {
-                            alert('Please Enter Mobile Number');
-                        }
-                    } else {
-                        alert('Please Enter Gender');
-                    }
-                } else {
-                    alert('Please Enter Password');
-                }
-            } else {
-                alert('Please Enter email');
-            }
+        //Handler for the Submit onPress
+        if (this.state.otp != '') {
+            //  Check for the Email TextInput
+            //  alert('Success');
+            this.showLoading();
+            this.otpCall();
+
+          //this.props.navigation.navigate('ResetPassword')
+
+            //   this.props.navigation.navigate('Login')
+
         } else {
-            alert('Please Enter username');
+            alert('Please Enter OTP');
         }
     };
 
     static navigationOptions = {
-        title: 'Register Screen',
+        title: 'OTP',
         // headerStyle: {
         //   backgroundColor: '#03A9F4',
         // },
@@ -68,15 +55,14 @@ class SignupActivity extends Component {
         // },
     };
 
-    registerCall() {
+    otpCall() {
 
         let formdata = new FormData();
-        formdata.append("methodName", 'signup')
-        formdata.append("email", this.state.email)
-        formdata.append("password", this.state.password)
-        formdata.append("name", this.state.username)
-        formdata.append("gender", this.state.gender)
-        formdata.append("mobileno", this.state.mobilenumber)
+        formdata.append("methodName", 'match_otp')
+        formdata.append("otp", this.state.otp)
+        const { navigation } = this.props;
+        const email = navigation.getParam('email', 'NO-Email');
+        formdata.append("email", email)
 
         var that = this;
         var url = that.state.baseUrl;
@@ -90,11 +76,18 @@ class SignupActivity extends Component {
         }).then((response) => response.json())
             .then(responseJson => {
                 this.hideLoading();
-                alert(responseJson.replyMessage);
+            //    alert(responseJson.replyMessage);
+                if (responseJson.replyStatus == 'success') {
+                    this.saveResetUserId(responseJson.data.id.toString());  
+                    this.props.navigation.navigate('ResetPassword')
+
+                } else {
+                    alert(responseJson.replyMessage);
+                }
                 console.log("server response===" + JSON.stringify(responseJson))
                 console.log("server STATUS  ===" + responseJson.replyStatus)
                 console.log("server MESSAGE  ===" + responseJson.replyMessage)
-                console.log("server value  ===" + responseJson.data.email)
+                //console.log("server value  ===" + responseJson.data.email)
             }).catch(err => {
                 this.hideLoading();
                 console.log(err)
@@ -102,6 +95,15 @@ class SignupActivity extends Component {
 
     }
 
+    async saveResetUserId(value) {
+        try {
+          await AsyncStorage.setItem('@reset_user_id', value);
+        } catch (error) {
+          console.log("Error saving data" + error);
+        }
+      }
+
+      
     showLoading() {
         this.setState({ loading: true });
     }
@@ -111,7 +113,8 @@ class SignupActivity extends Component {
     }
 
     render() {
-
+        const { navigation } = this.props;
+        const email = navigation.getParam('email', 'NO-Email');
         return (
             <View style={styles.container}>
 
@@ -119,61 +122,32 @@ class SignupActivity extends Component {
                     resizeMode='cover'
                     source={require('../images/bg.png')}>
 
+
                     <TouchableOpacity
 
-                        onPress={() => this.props.navigation.navigate('Login')} >
+                        onPress={() => this.props.navigation.navigate('ForgotPassword')} >
 
                         <Image source={require('../images/back_icon.png')}
                             style={styles.image}>
                         </Image>
                     </TouchableOpacity>
 
-                    <Text style={styles.headerText}>Sign Up</Text>
+
+                    <Text style={styles.headerText}>OTP</Text>
                     <View style={styles.container}>
+                        <Text style={styles.headerText}>Verification Code</Text>
+                        <Text style={styles.normalText}>Please type the verification code sent to
+                        your {JSON.stringify(email)}</Text>
 
                         <TextInput
                             placeholderTextColor="#7f8ec5"
                             underlineColorAndroid='transparent'
-                            onChangeText={username => this.setState({ username })}
-                            placeholder={'Enter Username'}
-                            style={styles.input}
-                        />
-                        <TextInput
-                            placeholder={'Enter Email'}
-                            placeholderTextColor="#7f8ec5"
-                            underlineColorAndroid='transparent'
-                            style={styles.input}
-                            onChangeText={email => this.setState({ email })}
-                        />
-
-                        <TextInput
-                            placeholder={'Enter Password'}
-                            placeholderTextColor="#7f8ec5"
-                            underlineColorAndroid='transparent'
-                            style={styles.input}
-                            secureTextEntry={true}
-                            onChangeText={password => this.setState({ password })}
-                        />
-
-
-                        <TextInput
-                            placeholder={'Enter Gender'}
-                            placeholderTextColor="#7f8ec5"
-                            underlineColorAndroid='transparent'
-                            style={styles.input}
-                            onChangeText={gender => this.setState({ gender })}
-                        />
-
-
-                        <TextInput
-                            placeholder={'Enter Mobile Number'}
-                            placeholderTextColor="#7f8ec5"
-                            underlineColorAndroid='transparent'
+                            onChangeText={otp => this.setState({ otp })}
+                            placeholder={'Enter  OTP'}
                             style={styles.input}
                             keyboardType={'numeric'}
-
-                            onChangeText={mobilenumber => this.setState({ mobilenumber })}
                         />
+
 
                         {this.state.loading && (
                             <View style={styles.loading}>
@@ -186,16 +160,8 @@ class SignupActivity extends Component {
                             activeOpacity={.5}
                             onPress={this.CheckTextInput} >
 
-                            <Text style={styles.TextStyle}> SIGN UP </Text>
+                            <Text style={styles.TextStyle}> SUBMIT </Text>
                         </TouchableOpacity>
-
-                        <Text style={styles.multiColorText} >
-                            Already have an account?
-             <Text style={styles.normalText} onPress={() => this.props.navigation.navigate('Login')}>
-                                SIGN IN
-             </Text>
-                        </Text>
-
 
 
 
@@ -244,6 +210,13 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         alignItems: 'center'
     },
+    ImageIconStyle: {
+        padding: 10,
+        margin: 5,
+        height: 25,
+        width: 25,
+        resizeMode: 'stretch',
+    },
     headerText: {
         marginTop: 40,
         fontSize: 22,
@@ -254,26 +227,15 @@ const styles = StyleSheet.create({
     },
     normalText: {
         fontSize: 15,
+        padding: 10,
         textAlign: 'center',
         margin: 20,
-        color: '#71C488'
+        color: '#FFFFFF'
     },
     imgBackground: {
         width: '100%',
         height: '100%',
         flex: 1
-    },
-    normalText: {
-        fontSize: 15,
-        textAlign: 'center',
-        margin: 20,
-        color: '#71C488'
-    },
-    multiColorText: {
-        fontSize: 15,
-        textAlign: 'center',
-        margin: 20,
-        color: '#809aba'
     },
     image: {
         height: 50,
@@ -283,4 +245,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default SignupActivity;
+export default OTPActivity;
