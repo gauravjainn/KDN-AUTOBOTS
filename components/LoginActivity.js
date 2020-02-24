@@ -10,9 +10,9 @@ import {
   TextInput,
   ActivityIndicator,
   Image,
-  ImageBackground,
-  AsyncStorage
+  ImageBackground
 } from 'react-native';
+import { AsyncStorage} from '@react-native-community/async-storage';
 
 class LoginActivity extends Component {
   constructor(props) {
@@ -30,20 +30,20 @@ class LoginActivity extends Component {
 
   CheckTextInput = () => {
     //Handler for the Submit onPress
-    if (this.state.username != '') {
-      //Check for the Name TextInput
-      if (this.state.password != '') {
+    // if (this.state.username != '') {
+    //   //Check for the Name TextInput
+    //   if (this.state.password != '') {
         //  Check for the Email TextInput
         //  alert('Success');
         this.showLoading();
         this.loginCall();
         //this.props.navigation.navigate('Signup')
-      } else {
-        alert('Please Enter Password');
-      }
-    } else {
-      alert('Please Enter Username');
-    }
+    //   } else {
+    //     alert('Please Enter Password');
+    //   }
+    // } else {
+    //   alert('Please Enter Username');
+    // }
   };
 
   static navigationOptions = {
@@ -91,8 +91,10 @@ class LoginActivity extends Component {
 
     let formdata = new FormData();
     formdata.append("methodName", 'login')
-    formdata.append("email", this.state.username)
-    formdata.append("password", this.state.password)
+    // formdata.append("email", this.state.username)
+    // formdata.append("password", this.state.password)
+    formdata.append("email", "gaurav@yopmail.com")
+    formdata.append("password", "123456")
 
     var that = this;
     var url = that.state.baseUrl;
@@ -109,8 +111,6 @@ class LoginActivity extends Component {
         if (responseJson.replyStatus == 'success') {	
      
           this.saveLoginUserId(responseJson.data.id.toString());
-          this.getLoginUserId();
-         
       
           this.props.navigation.navigate('Home', {
               username: responseJson.data.email
@@ -137,14 +137,7 @@ class LoginActivity extends Component {
     }
   }
 
-  async getLoginUserId() {
-    try {
-      const value = await AsyncStorage.getItem('@user_id');
-      console.log("value get new=====" + value);
-    } catch (error) {
-      console.log("Error retrieving data" + error);
-    }
-  }
+ 
  
   showLoading() {
     this.setState({ loading: true });

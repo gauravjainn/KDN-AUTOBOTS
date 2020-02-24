@@ -10,12 +10,13 @@ import {
     TextInput,
     ActivityIndicator,
     Image,
-    ImageBackground,
-    AsyncStorage
+    ImageBackground
 } from 'react-native';
+import { AsyncStorage} from '@react-native-community/async-storage';
 
 class OTPActivity extends Component {
-    constructor(props) {
+    constructor(props) 
+    {
         super(props);
         this.otpCall = this.otpCall.bind(this);
         this.state = {

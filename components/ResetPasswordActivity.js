@@ -10,16 +10,16 @@ import {
     TextInput,
     ActivityIndicator,
     Image,
-    ImageBackground,
-    AsyncStorage
+    ImageBackground
 } from 'react-native';
+import { AsyncStorage} from '@react-native-community/async-storage';
 
 class ResetPasswordActivity extends Component {
     constructor(props) {
         super(props);
         this.resetCall = this.resetCall.bind(this);
         this.state = {
-            userId:'',
+            userId: '',
             JSONResult: '',
             password: '',
             confirmpassword: '',
@@ -33,9 +33,9 @@ class ResetPasswordActivity extends Component {
         if (this.state.password != '') {
             if (this.state.confirmpassword != '') {
                 if (this.state.password == this.state.confirmpassword) {
-                     this.showLoading();
-                     this.resetCall();
-                   // this.props.navigation.navigate('Login')
+                    this.showLoading();
+                    this.resetCall();
+                    // this.props.navigation.navigate('Login')
                 } else {
                     alert('new password and confirm password are not matched, please check again');
                 }
@@ -62,10 +62,10 @@ class ResetPasswordActivity extends Component {
     resetCall() {
         let formdata = new FormData();
         formdata.append("methodName", 'reset_password')
-        formdata.append("user_id",  this.state.userId)
+        formdata.append("user_id", this.state.userId)
         formdata.append("password", this.state.password)
         formdata.append("confirm_password", this.state.confirmpassword)
-       
+
         var that = this;
         var url = that.state.baseUrl;
         console.log('url:' + url);
@@ -78,13 +78,13 @@ class ResetPasswordActivity extends Component {
         }).then((response) => response.json())
             .then(responseJson => {
                 this.hideLoading();
-                if (responseJson.replyStatus == 'success') {	
-        
+                if (responseJson.replyStatus == 'success') {
+
                     this.props.navigation.navigate('Login')
                 } else {
                     alert(responseJson.replyMessage);
                 }
-              //  alert(responseJson.replyMessage);
+                //  alert(responseJson.replyMessage);
                 console.log("server response===" + JSON.stringify(responseJson))
                 console.log("server STATUS  ===" + responseJson.replyStatus)
                 console.log("server MESSAGE  ===" + responseJson.replyMessage)
@@ -99,13 +99,13 @@ class ResetPasswordActivity extends Component {
 
     componentDidMount() {
         AsyncStorage.getItem('@reset_user_id').then((userId) => {
-            if(userId){
-                this.setState({userId: userId});
+            if (userId) {
+                this.setState({ userId: userId });
                 console.log("Reset user id ====" + this.state.userId);
             }
         });
     }
-   
+
 
 
     showLoading() {
