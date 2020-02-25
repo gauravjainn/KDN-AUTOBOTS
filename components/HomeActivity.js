@@ -2,9 +2,15 @@ import React, { Component } from 'react';
 import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
-import { View, Text, StyleSheet, Image, PermissionsAndroid, Platform, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, PermissionsAndroid, Platform, Dimensions, TouchableOpacity } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapViewDirections from 'react-native-maps-directions';
+import { BottomSheet } from 'react-native-btr';
+import { SocialIcon } from 'react-native-elements';
+//import for the bottom sheet
+
+
+
 const { width, height } = Dimensions.get('window')
 
 
@@ -15,29 +21,54 @@ const LATITUDE_DELTA = 0.0922
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO
 //const homePlace = { description: 'Home', geometry: { location: { lat: 48.8152937, lng: 2.4597668 } }};
 //const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818, lng: 2.2940881 } }};
-var origin = { latitude: 24.585443333333334, longitude: 73.71247833333334 };
-var destination = { latitude: 26.9124336, longitude: 75.7872709 };
-
+//var origin = { latitude: 24.585443333333334, longitude: 73.71247833333334 };
+//var destination = { latitude: 26.9124336, longitude: 75.7872709 };
+var directionData;
 
 export default class HomeActivity extends Component {
 
   constructor(props) {
     super(props)
+    // this._isMounted = false;
     this.mapView = null;
     this.state = {
+      showPlacesList: false,
       initialPosition: {
         latitude: 0,
         longitude: 0,
         latitudeDelta: 0,
         longitudeDelta: 0,
-      }
+      },
+      destination: {
+        latitude: 0,
+        longitude: 0,
+        latitudeDelta: 0,
+        longitudeDelta: 0,
+        title: '',
+      },
+      directionDetails: {
+        latitude: 0,
+        longitude: 0,
+        latitudeDelta: 0,
+        longitudeDelta: 0,
+        title: '',
+      },
+
+      visible: false,
+
     }
-     }
+  }
+
+  _toggleBottomNavigationView = () => {
+    //Toggling the visibility state of the bottom sheet
+    this.setState({ visible: !this.state.visible });
+  };
 
   componentDidMount = () => {
     var that = this;
     //Checking for the permission just after component loaded
     if (Platform.OS === 'ios') {
+      //  this._isMounted = true;
       this.callLocation(that);
     } else {
       async function requestLocationPermission() {
@@ -50,6 +81,7 @@ export default class HomeActivity extends Component {
           )
           if (granted === PermissionsAndroid.RESULTS.GRANTED) {
             //To Check, If Permission is granted
+            // this._isMounted = true;
             that.callLocation(that);
           } else {
             alert("Permission Denied");
@@ -113,30 +145,63 @@ export default class HomeActivity extends Component {
     });
   }
   componentWillUnmount = () => {
+    //  this._isMounted = false;
     Geolocation.clearWatch(this.watchID);
   }
+
+  displayDirectionPoly = () => {
+
+    this._toggleBottomNavigationView();
+    this.setState({ directionDetails: directionData })
+
+  };
+
 
   render() {
 
     return (
       <View style={styles.MainContainer}>
-        <View style={{ width: '100%', zIndex: 2, position: 'absolute', backgroundColor: '#FFF' }}>
+        <View style={{ width: '100%', top: '15%', zIndex: 2, position: 'absolute', backgroundColor: '#FFF' }}>
           <GooglePlacesAutocomplete
-            placeholder='Search'
+            placeholder='Where to?'
             minLength={2} // minimum length of text to search
             autoFocus={false}
             returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
             keyboardAppearance={'light'} // Can be left out for default keyboardAppearance https://facebook.github.io/react-native/docs/textinput.html#keyboardappearance
-            listViewDisplayed='auto'    // true/false/undefined
+            listViewDisplayed={this.state.showPlacesList}
+            textInputProps={{
+               onFocus: () => this.setState({showPlacesList: true}),
+               onBlur: () => this.setState({showPlacesList: false}),
+            }}
+           // listViewDisplayed='auto' 
             fetchDetails={true}
             renderDescription={row => row.description} // custom description render
             onPress={(data, details = null) => { // 'details' is provided when fetchDetails = true
               console.log("data===" + JSON.stringify(data));
               console.log("details===" + JSON.stringify(details));
               console.log("geometry===" + JSON.stringify(details.geometry.location));
-
               var lat = parseFloat(details.geometry.location.lat)
               var long = parseFloat(details.geometry.location.lng)
+
+              var initialdestination = {
+                latitude: lat,
+                longitude: long,
+                latitudeDelta: LATITUDE_DELTA,
+                longitudeDelta: LONGITUDE_DELTA,
+                title: data.description
+              }
+
+              directionData = {
+                latitude: lat,
+                longitude: long,
+                latitudeDelta: LATITUDE_DELTA,
+                longitudeDelta: LONGITUDE_DELTA,
+                title: data.description
+              }
+
+           
+              this.setState({ destination: initialdestination })
+              this.mapView.animateToRegion(initialdestination, 2000);
 
               console.log("lat===" + lat);
               console.log("long===" + long);
@@ -192,7 +257,7 @@ export default class HomeActivity extends Component {
           />
 
         </View>
-        <View style={{ width: '100%', height: '94%', top: '6%', zIndex: 1, position: 'absolute' }} >
+        <View style={{ width: '100%', height: '100%', top: '0%', zIndex: 1, position: 'absolute' }} >
           <MapView
             style={styles.mapStyle}
             showsUserLocation={true}
@@ -201,22 +266,145 @@ export default class HomeActivity extends Component {
             showsMyLocationButton={true}
             minZoomLevel={3}
             maxZoomLevel={12}
+
             ref={ref => {
               this.mapView = ref;
             }}
+
             initialRegion={this.state.initialPosition}>
 
+
             <MapViewDirections
-              origin={origin}
-              destination={destination}
-              strokeWidth={3}
-              strokeColor="hotpink"
-              apikey={'AIzaSyAAQ1Cppz62lgwYEJjzrkty7Nzi5ZYNCSM'}
+              origin={this.state.initialPosition}
+              destination={this.state.directionDetails}
+              strokeWidth={5}
+              strokeColor="#24a0ed"
+              apikey={'AIzaSyAAQ1Cppz62lgwYEJjzrkty7Nzi5ZYNCSM'} />
+
+            <Marker
+              coordinate={{
+                latitude: this.state.destination.latitude,
+                longitude: this.state.destination.longitude,
+              }}
+              // onDragEnd={(e) => alert(JSON.stringify(e.nativeEvent.coordinate))}
+              title={this.state.destination.title}
+              onPress={this._toggleBottomNavigationView}
+            //  description={'This is a description of the marker'}
             />
 
           </MapView>
+
+          <BottomSheet
+            visible={this.state.visible}
+            //setting the visibility state of the bottom shee
+            onBackButtonPress={this._toggleBottomNavigationView}
+            //Toggling the visibility state on the click of the back botton
+            onBackdropPress={this._toggleBottomNavigationView}
+          //Toggling the visibility state on the clicking out side of the sheet
+          >
+            {/*Bottom Sheet inner View*/}
+            <View style={styles.bottomNavigationView}>
+
+              <TouchableOpacity
+                style={styles.getDirectionButton}
+                activeOpacity={.5}
+                onPress={this.displayDirectionPoly}
+                 >
+
+                <Text style={styles.directionText}> Get Direction </Text>
+              </TouchableOpacity>
+
+              {/* <View
+                style={{
+                  flex: 1,
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                }}> */}
+
+
+              {/* <View style={{ flex: 1, flexDirection: 'row' }}>
+                  <SocialIcon
+                    //Social Icon using react-native-elements
+                    type="twitter"
+                    //Type of Social Icon
+                    onPress={() => {
+                      //Action to perform on press of Social Icon
+                      this._toggleBottomNavigationView();
+                      alert('twitter');
+                    }}
+                  />
+                  <SocialIcon
+                    type="gitlab"
+                    onPress={() => {
+                      this._toggleBottomNavigationView();
+                      alert('gitlab');
+                    }}
+                  />
+                  <SocialIcon
+                    type="medium"
+                    onPress={() => {
+                      this._toggleBottomNavigationView();
+                      alert('medium');
+                    }}
+                  />
+                  <SocialIcon
+                    type="facebook"
+                    onPress={() => {
+                      this._toggleBottomNavigationView();
+                      alert('facebook');
+                    }}
+                  />
+                  <SocialIcon
+                    type="instagram"
+                    onPress={() => {
+                      this._toggleBottomNavigationView();
+                      alert('instagram');
+                    }}
+                  />
+                </View>
+                <View style={{ flex: 1, flexDirection: 'row' }}>
+                  <SocialIcon
+                    type="facebook"
+                    onPress={() => {
+                      this._toggleBottomNavigationView();
+                      alert('facebook');
+                    }}
+                  />
+                  <SocialIcon
+                    type="instagram"
+                    onPress={() => {
+                      this._toggleBottomNavigationView();
+                      alert('instagram');
+                    }}
+                  />
+                  <SocialIcon
+                    type="gitlab"
+                    onPress={() => {
+                      this._toggleBottomNavigationView();
+                      alert('gitlab');
+                    }}
+                  />
+                  <SocialIcon
+                    type="twitter"
+                    onPress={() => {
+                      this._toggleBottomNavigationView();
+                      alert('twitter');
+                    }}
+                  />
+                  <SocialIcon
+                    type="medium"
+                    onPress={() => {
+                      this._toggleBottomNavigationView();
+                      alert('medium');
+                    }}
+                  />
+                </View> */}
+              {/* </View> */}
+            </View>
+          </BottomSheet>
         </View>
       </View>
+
     );
   }
 }
@@ -238,4 +426,33 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+  bottomNavigationView: {
+    backgroundColor: '#fff',
+    width: '100%',
+    height: '20%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  getDirectionButton: {
+    marginTop: 20,
+    width: 300,
+    height: 40,
+    padding: 10,
+    backgroundColor: '#24a0ed',
+    borderRadius: 10,
+    alignItems: 'center'
+  },
+  directionText: {
+    fontSize: 15,
+    textAlign: 'center',
+    color: 'white'
+  },
+  blacklargetext: {
+    fontSize: 15,
+    textAlign: 'left',
+    color: 'black'
+  },
+
+
 });  
