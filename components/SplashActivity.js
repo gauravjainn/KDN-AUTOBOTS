@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import { NavigationActions } from "react-navigation";
 import {
     StyleSheet,
     View,
     ImageBackground,
 } from 'react-native';
+import SoundPlayer from 'react-native-sound-player'
+
+
 
 class SplashActivity extends Component {
     constructor(props) {
@@ -13,7 +15,7 @@ class SplashActivity extends Component {
         };
     }
 
-   
+
 
     static navigationOptions = {
         title: 'Splash',
@@ -26,17 +28,28 @@ class SplashActivity extends Component {
         // },
     };
 
-    componentDidMount(){
-        // Start counting when the page is loaded
-        this.timeoutHandle = setTimeout(()=>{
-             // Add your logic for the transition
-             this.props.navigation.navigate('Login')
-        }, 5000);
-   }
+    componentDidMount() {
 
-   componentWillUnmount(){
+
+        try {
+            // play the file tone.mp3
+            SoundPlayer.playSoundFile('carstartgarage', 'mp3')
+            // or play from url
+        //    SoundPlayer.playUrl('https://example.com/music.mp3')
+        } catch (e) {
+            console.log(`cannot play the sound file`, e)
+        }
+
+    
+        this.timeoutHandle = setTimeout(() => {
+            // Add your logic for the transition
+            this.props.navigation.navigate('Login')
+        }, 5000);
+    }
+
+    componentWillUnmount() {
         clearTimeout(this.timeoutHandle); // This is just necessary in the case that the screen is closed before the timeout fires, otherwise it would cause a memory leak that would trigger the transition regardless, breaking the user experience.
-   }
+    }
 
 
     render() {

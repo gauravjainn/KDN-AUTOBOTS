@@ -29,21 +29,21 @@ class LoginActivity extends Component {
   }
 
   CheckTextInput = () => {
-    //Handler for the Submit onPress
-    // if (this.state.username != '') {
-    //   //Check for the Name TextInput
-    //   if (this.state.password != '') {
-        //  Check for the Email TextInput
-        //  alert('Success');
+  //  Handler for the Submit onPress
+    if (this.state.username != '') {
+      //Check for the Name TextInput
+      if (this.state.password != '') {
+         //Check for the Email TextInput
+        // alert('Success');
         this.showLoading();
         this.loginCall();
         //this.props.navigation.navigate('Signup')
-    //   } else {
-    //     alert('Please Enter Password');
-    //   }
-    // } else {
-    //   alert('Please Enter Username');
-    // }
+      } else {
+        alert('Please Enter Password');
+      }
+    } else {
+      alert('Please Enter Username');
+    }
   };
 
   static navigationOptions = {
@@ -91,10 +91,10 @@ class LoginActivity extends Component {
 
     let formdata = new FormData();
     formdata.append("methodName", 'login')
-    // formdata.append("email", this.state.username)
-    // formdata.append("password", this.state.password)
-    formdata.append("email", "gaurav@yopmail.com")
-    formdata.append("password", "123456")
+     formdata.append("email", this.state.username)
+     formdata.append("password", this.state.password)
+    // formdata.append("email", "gaurav@yopmail.com")
+    // formdata.append("password", "123456")
 
     var that = this;
     var url = that.state.baseUrl;

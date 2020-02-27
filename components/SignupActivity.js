@@ -10,7 +10,8 @@ import {
     TextInput,
     ActivityIndicator,
     Image,
-    ImageBackground
+    ImageBackground,
+    Picker
 } from 'react-native';
 
 
@@ -28,14 +29,19 @@ class SignupActivity extends Component {
             status: '',
             wholeResult: '',
             baseUrl: 'http://kd.smeezy.com/api',
+            user: ''
         };
+
+    }
+
+    updateUser = (user) => {
+        this.setState({ user: user })
     }
 
     CheckTextInput = () => {
         if (this.state.username != '') {
             if (this.state.email != '') {
                 if (this.state.password != '') {
-                    if (this.state.gender != '') {
                         if (this.state.mobilenumber != '') {
                             this.showLoading();
                             this.registerCall();
@@ -43,9 +49,10 @@ class SignupActivity extends Component {
                         else {
                             alert('Please Enter Mobile Number');
                         }
-                    } else {
-                        alert('Please Enter Gender');
-                    }
+                    // } else {
+                    //     console.log("gender value====" + this.state.user);
+                    //     alert('Please Select Gender');
+                    // }
                 } else {
                     alert('Please Enter Password');
                 }
@@ -75,7 +82,7 @@ class SignupActivity extends Component {
         formdata.append("email", this.state.email)
         formdata.append("password", this.state.password)
         formdata.append("name", this.state.username)
-        formdata.append("gender", this.state.gender)
+        formdata.append("gender", this.state.user)
         formdata.append("mobileno", this.state.mobilenumber)
 
         var that = this;
@@ -156,13 +163,15 @@ class SignupActivity extends Component {
                         />
 
 
-                        <TextInput
-                            placeholder={'Enter Gender'}
-                            placeholderTextColor="#7f8ec5"
-                            underlineColorAndroid='transparent'
-                            style={styles.input}
-                            onChangeText={gender => this.setState({ gender })}
-                        />
+
+                        <Picker style={styles.input}
+                            selectedValue={this.state.user}
+                            onValueChange={this.updateUser}>
+                            <Picker.Item label="Male" value="male" />
+                            <Picker.Item label="Female" value="female" />
+                            <Picker.Item label="Other" value="other" />
+                        </Picker>
+
 
 
                         <TextInput
@@ -280,7 +289,7 @@ const styles = StyleSheet.create({
         marginTop: 50,
         justifyContent: "space-around",    //  <-- you can use "center", "flex-start",
         resizeMode: "contain",             //      "flex-end" or "space-between" here
-    },
+    }
 });
 
 export default SignupActivity;

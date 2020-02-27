@@ -12,7 +12,7 @@ import {
     Image,
     ImageBackground
 } from 'react-native';
-import { AsyncStorage} from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-community/async-storage';
 
 class OTPActivity extends Component {
     constructor(props) 
