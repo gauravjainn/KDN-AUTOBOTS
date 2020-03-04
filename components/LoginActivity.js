@@ -29,7 +29,7 @@ class LoginActivity extends Component {
   }
 
   CheckTextInput = () => {
-  //  Handler for the Submit onPress
+  // Handler for the Submit onPress
     if (this.state.username != '') {
       //Check for the Name TextInput
       if (this.state.password != '') {

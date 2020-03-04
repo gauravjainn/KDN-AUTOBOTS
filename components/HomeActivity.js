@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
-import { View, Text, StyleSheet, Image, PermissionsAndroid, Platform, Dimensions, TouchableOpacity,YellowBox } from 'react-native';
+import { View, Text, StyleSheet, Image, PermissionsAndroid, Platform, Dimensions, TouchableOpacity, YellowBox } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapViewDirections from 'react-native-maps-directions';
 import { BottomSheet } from 'react-native-btr';
@@ -60,13 +60,23 @@ export default class HomeActivity extends Component {
       },
 
       visible: false,
+      nearestvisible: false,
+      TextValue : ''
 
     }
   }
 
+
+  
+
   _toggleBottomNavigationView = () => {
     //Toggling the visibility state of the bottom sheet
     this.setState({ visible: !this.state.visible });
+  };
+
+  _toggleNearestNavigationView = () => {
+    //Toggling the visibility state of the bottom sheet
+    this.setState({ nearestvisible: !this.state.nearestvisible });
   };
 
   componentDidMount = () => {
@@ -129,6 +139,8 @@ export default class HomeActivity extends Component {
 
         this.setState({ initialPosition: initialRegion })
         this.mapView.animateToRegion(initialRegion, 2000);
+        this._toggleNearestNavigationView();
+        
       },
       (error) => alert(error.message),
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
@@ -161,6 +173,21 @@ export default class HomeActivity extends Component {
 
   };
 
+  GetValueFunction = (ValueHolder) =>{
+      
+    var Value = ValueHolder.length.toString() ;
+    this.setState({TextValue : Value}) ;
+
+
+    console.log("length====" + ValueHolder.length)
+    // if(this.state.TextValue)
+    // {
+    //   this._toggleNearestNavigationView();
+    // }
+
+  
+   }
+
 
   render() {
 
@@ -174,11 +201,12 @@ export default class HomeActivity extends Component {
             returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
             keyboardAppearance={'light'} // Can be left out for default keyboardAppearance https://facebook.github.io/react-native/docs/textinput.html#keyboardappearance
             listViewDisplayed={this.state.showPlacesList}
+            onChangeText={ ValueHolder => this.GetValueFunction(ValueHolder) }
             textInputProps={{
-               onFocus: () => this.setState({showPlacesList: true}),
-               onBlur: () => this.setState({showPlacesList: false}),
+              onFocus: () => this.setState({ showPlacesList: true }),
+              onBlur: () => this.setState({ showPlacesList: false }),
             }}
-           // listViewDisplayed='auto' 
+            // listViewDisplayed='auto' 
             fetchDetails={true}
             renderDescription={row => row.description} // custom description render
             onPress={(data, details = null) => { // 'details' is provided when fetchDetails = true
@@ -204,7 +232,7 @@ export default class HomeActivity extends Component {
                 title: data.description
               }
 
-           
+
               this.setState({ destination: initialdestination })
               this.mapView.animateToRegion(initialdestination, 2000);
 
@@ -313,102 +341,93 @@ export default class HomeActivity extends Component {
               <TouchableOpacity
                 style={styles.getDirectionButton}
                 activeOpacity={.5}
-                onPress={this.displayDirectionPoly}
-                 >
-
+                onPress={this.displayDirectionPoly}>
                 <Text style={styles.directionText}> Get Direction </Text>
               </TouchableOpacity>
+            </View>
+          </BottomSheet>
 
-              {/* <View
-                style={{
-                  flex: 1,
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                }}> */}
+          <BottomSheet
+            visible={this.state.nearestvisible}
+            //setting the visibility state of the bottom shee
+            onBackButtonPress={this._toggleNearestNavigationView}
+            //Toggling the visibility state on the click of the back botton
+            onBackdropPress={this._toggleNearestNavigationView}
+          //Toggling the visibility state on the clicking out side of the sheet 
+          >
+         
+            <View style={styles.nearestBottomNavigationView}>
 
+              <View style={{ flex: 1, flexDirection: 'row' }}>
 
-              {/* <View style={{ flex: 1, flexDirection: 'row' }}>
-                  <SocialIcon
-                    //Social Icon using react-native-elements
-                    type="twitter"
-                    //Type of Social Icon
-                    onPress={() => {
-                      //Action to perform on press of Social Icon
-                      this._toggleBottomNavigationView();
-                      alert('twitter');
-                    }}
-                  />
-                  <SocialIcon
-                    type="gitlab"
-                    onPress={() => {
-                      this._toggleBottomNavigationView();
-                      alert('gitlab');
-                    }}
-                  />
-                  <SocialIcon
-                    type="medium"
-                    onPress={() => {
-                      this._toggleBottomNavigationView();
-                      alert('medium');
-                    }}
-                  />
-                  <SocialIcon
-                    type="facebook"
-                    onPress={() => {
-                      this._toggleBottomNavigationView();
-                      alert('facebook');
-                    }}
-                  />
-                  <SocialIcon
-                    type="instagram"
-                    onPress={() => {
-                      this._toggleBottomNavigationView();
-                      alert('instagram');
-                    }}
-                  />
-                </View>
-                <View style={{ flex: 1, flexDirection: 'row' }}>
-                  <SocialIcon
-                    type="facebook"
-                    onPress={() => {
-                      this._toggleBottomNavigationView();
-                      alert('facebook');
-                    }}
-                  />
-                  <SocialIcon
-                    type="instagram"
-                    onPress={() => {
-                      this._toggleBottomNavigationView();
-                      alert('instagram');
-                    }}
-                  />
-                  <SocialIcon
-                    type="gitlab"
-                    onPress={() => {
-                      this._toggleBottomNavigationView();
-                      alert('gitlab');
-                    }}
-                  />
-                  <SocialIcon
-                    type="twitter"
-                    onPress={() => {
-                      this._toggleBottomNavigationView();
-                      alert('twitter');
-                    }}
-                  />
-                  <SocialIcon
-                    type="medium"
-                    onPress={() => {
-                      this._toggleBottomNavigationView();
-                      alert('medium');
-                    }}
-                  />
-                </View> */}
-              {/* </View> */}
+              <TouchableOpacity
+                style={styles.getNearestButton}
+                activeOpacity={.5}
+                onPress={() => {
+                  this._toggleNearestNavigationView();
+                  this.props.navigation.navigate('Restaurant')
+                }}>
+                <Text style={styles.directionText}> Restaurant </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.getNearestButton}
+                activeOpacity={.5}
+                onPress={() => {
+                  this._toggleNearestNavigationView();
+                  this.props.navigation.navigate('Atm')
+                }}>
+                <Text style={styles.directionText}> ATM </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.getNearestButton}
+                activeOpacity={.5}
+                onPress={() => {
+                  this._toggleNearestNavigationView();
+                  this.props.navigation.navigate('Parking')
+                }}>
+                <Text style={styles.directionText}> Parking </Text>
+              </TouchableOpacity>
+
+              </View>
+
+              <View style={{ flex: 1, flexDirection: 'row' }}>
+
+              <TouchableOpacity
+                style={styles.getNearestButton}
+                activeOpacity={.5}
+                onPress={() => {
+                  this._toggleNearestNavigationView();
+                  this.props.navigation.navigate('MovieHall')
+                }}>
+                <Text style={styles.directionText}> Cinema </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.getNearestButton}
+                activeOpacity={.5}
+                onPress={() => {
+                  this._toggleNearestNavigationView();
+                  this.props.navigation.navigate('ShoppingMall')
+                }}>
+                <Text style={styles.directionText}> Shopping </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.getNearestButton}
+                activeOpacity={.5}
+                onPress={() => {
+                  this._toggleNearestNavigationView();
+                 this.props.navigation.navigate('Hospital')
+                }}>
+                <Text style={styles.directionText}> Hospital </Text>
+              </TouchableOpacity>
+              </View>
             </View>
           </BottomSheet>
         </View>
-      </View>
+      </View >
 
     );
   }
@@ -438,7 +457,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
+  nearestBottomNavigationView: {
+    backgroundColor: '#fff',
+    width: '100%',
+    height: '25%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   getDirectionButton: {
     marginTop: 20,
     width: 300,
@@ -448,6 +473,19 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center'
   },
+
+  getNearestButton: {
+    marginTop: 20,
+    width: 100,
+    height: 40,
+    padding: 10,
+    backgroundColor: '#24a0ed',
+    borderRadius: 10,
+    marginRight: 10,
+    marginLeft:10,
+    alignItems: 'center'
+  },
+
   directionText: {
     fontSize: 15,
     textAlign: 'center',
@@ -458,6 +496,11 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     color: 'black'
   },
-
+  image: {
+    height: 60,
+    marginTop: 60,
+    justifyContent: "space-around",    //  <-- you can use "center", "flex-start",
+    resizeMode: "contain",             //      "flex-end" or "space-between" here
+  }
 
 });  

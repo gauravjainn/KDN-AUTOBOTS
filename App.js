@@ -10,6 +10,12 @@ import OTPActivity from './components/OTPActivity';
 import HomeActivity from './components/HomeActivity';
 import ResetPasswordActivity from './components/ResetPasswordActivity';
 import SplashActivity from './components/SplashActivity';
+import RestaurantList from './components/RestaurantList';
+import AtmList from './components/AtmList';
+import PaarkingList from './components/ParkingList';
+import MovieHallList from './components/MovieHallList';
+import ShoppingMallList from './components/ShoppingMallList';
+import HospitalList from './components/HospitalList';
 
 const NavStack = createStackNavigator(
     {
@@ -21,6 +27,12 @@ const NavStack = createStackNavigator(
         Home: { screen: HomeActivity },
         ResetPassword: { screen: ResetPasswordActivity },
         Splash: { screen: SplashActivity },
+        Restaurant : { screen: RestaurantList },
+        Atm : {screen : AtmList},
+        Parking : {screen : PaarkingList},
+        MovieHall : {screen : MovieHallList} ,
+        ShoppingMall : {screen : ShoppingMallList} ,
+        Hospital : {screen : HospitalList} 
     },
     {
         initialRouteName: 'Splash',
@@ -28,7 +40,6 @@ const NavStack = createStackNavigator(
     }
 
 );
-
 
 const Apps = createAppContainer(NavStack);
 
