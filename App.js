@@ -7,7 +7,8 @@ import ProfileActivity from './components/ProfileActivity';
 import SignupActivity from './components/SignupActivity';
 import ForgotPasswordActivity from './components/ForgotPasswordActivity';
 import OTPActivity from './components/OTPActivity';
-import HomeActivity from './components/HomeActivity';
+import NavigationScreen from './leftDrawerComponents/NavigationScreen';
+import HomeActivity from './leftDrawerComponents/HomeActivity';
 import ResetPasswordActivity from './components/ResetPasswordActivity';
 import SplashActivity from './components/SplashActivity';
 import RestaurantList from './components/RestaurantList';
@@ -32,7 +33,8 @@ const NavStack = createStackNavigator(
         Parking : {screen : PaarkingList},
         MovieHall : {screen : MovieHallList} ,
         ShoppingMall : {screen : ShoppingMallList} ,
-        Hospital : {screen : HospitalList} 
+        Hospital : {screen : HospitalList} ,
+        Navigation : {screen : NavigationScreen} 
     },
     {
         initialRouteName: 'Splash',
