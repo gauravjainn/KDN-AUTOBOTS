@@ -7,7 +7,6 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import MapViewDirections from 'react-native-maps-directions';
 import { BottomSheet } from 'react-native-btr';
 import SwipeablePanel from 'rn-swipeable-panel';
-import { SocialIcon } from 'react-native-elements';
 
 const { width, height } = Dimensions.get('window')
 
@@ -248,6 +247,7 @@ export default class NavigationScreen extends Component {
                   width: '100%'
                 },
                 description: {
+                  color: 'white',
                   fontWeight: 'bold'
                 },
                 predefinedPlacesDescription: {
@@ -356,7 +356,9 @@ export default class NavigationScreen extends Component {
             <View style={styles.bottomNavigationView}>
               <View
                 style={{
-                  flex: .85,
+                  flex: 1,
+                  marginLeft:10,
+                  marginRight:10,
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                 }}>
