@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
-import { View, Text, StyleSheet, Image, PermissionsAndroid, Platform, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, PermissionsAndroid, Platform, Dimensions, TouchableOpacity, Modal } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapViewDirections from 'react-native-maps-directions';
 import { BottomSheet } from 'react-native-btr';
 import SwipeablePanel from 'rn-swipeable-panel';
+import getDirections from 'react-native-google-maps-directions'
+
 
 const { width, height } = Dimensions.get('window')
 
@@ -26,6 +28,7 @@ export default class NavigationScreen extends Component {
 
     this.mapView = null;
     this.state = {
+      Alert_Visibility: false,
       showPlacesList: false,
       swipeablePanelActive: false,
       initialPosition: {
@@ -54,7 +57,53 @@ export default class NavigationScreen extends Component {
     }
   }
 
+  ShowCustomAlert(visible) {
 
+    this.setState({ Alert_Visibility: visible });
+
+  }
+
+
+
+
+  handleGetDirections = () => {
+    const data = {
+      source: {
+        latitude: this.state.currentLatitude,
+        longitude: this.state.currentLongitude
+      },
+      destination: {
+        latitude: this.state.destination.latitude,
+        longitude: this.state.destination.longitude
+      },
+      params: [
+        {
+          key: "travelmode",
+          value: "driving"        // may be "walking", "bicycling" or "transit" as well
+        },
+        {
+          key: "dir_action",
+          value: "navigate"       // this instantly initializes navigation using the given travel mode
+        }
+      ],
+      // waypoints: [
+      //   {
+      //     latitude: -33.8600025,
+      //     longitude: 18.697452
+      //   },
+      //   {
+      //     latitude: -33.8600026,
+      //     longitude: 18.697453
+      //   },
+      //      {
+      //     latitude: -33.8600036,
+      //     longitude: 18.697493
+      //   }
+      // ]
+    }
+
+    getDirections(data)
+  }
 
   openPanel = () => {
     this.setState({ swipeablePanelActive: true });
@@ -159,7 +208,7 @@ export default class NavigationScreen extends Component {
 
   displayDirectionPoly = () => {
 
-    // this._toggleBottomNavigationView();
+    //   this._toggleBottomNavigationView();
     this.setState({ directionDetails: directionData })
 
   };
@@ -225,6 +274,8 @@ export default class NavigationScreen extends Component {
                 this.setState({ destination: initialdestination })
                 this.mapView.animateToRegion(initialdestination, 2000);
                 this.closePanel();
+                this.displayDirectionPoly();
+                this._toggleBottomNavigationView();
 
                 console.log("lat===" + lat);
                 console.log("long===" + long);
@@ -238,8 +289,8 @@ export default class NavigationScreen extends Component {
               query={{
                 // available options: https://developers.google.com/places/web-service/autocomplete
                 key: 'AIzaSyAAQ1Cppz62lgwYEJjzrkty7Nzi5ZYNCSM',
-                language: 'en', // language of the results
-                types: 'geocode' // default: 'geocode'
+                language: 'en' // language of the results
+                //  types: 'geocode' // default: 'geocode'
               }}
 
               styles={{
@@ -280,16 +331,27 @@ export default class NavigationScreen extends Component {
             //   renderRightButton={() => <Text>Custom text after the input</Text>}
             />
 
-            <TouchableOpacity
-              onPress={() => {
-                this.openPanel();
+            {/* <View style={{ flex: 1, flexDirection: 'row' }}> */}
+            <View style={styles.alternativeLayoutButtonContainer}>
+              <TouchableOpacity
+                onPress={() => {
+                  this.openPanel();
+                }}>
 
-              }}>
+                <Image
+                  source={require('../images/Explore.png')} />
 
-              <Image
-                source={require('../images/Explore.png')} />
+              </TouchableOpacity>
 
-            </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  this.ShowCustomAlert(true);
+                }}>
+
+                <Image source={require('../images/Explore.png')} />
+
+              </TouchableOpacity>
+            </View>
 
           </View>
         </View>
@@ -324,8 +386,8 @@ export default class NavigationScreen extends Component {
               }}
               // onDragEnd={(e) => alert(JSON.stringify(e.nativeEvent.coordinate))}
               title={this.state.destination.title}
-              onPress={this.displayDirectionPoly}
-            // onPress={this._toggleBottomNavigationView}
+              //   onPress={this.displayDirectionPoly}
+              onPress={this._toggleBottomNavigationView}
             //  description={'This is a description of the marker'}
             />
 
@@ -345,20 +407,19 @@ export default class NavigationScreen extends Component {
               <TouchableOpacity
                 style={styles.getDirectionButton}
                 activeOpacity={.5}
-                onPress={this.displayDirectionPoly}>
-                <Text style={styles.directionText}> Get Direction </Text>
+                onPress={this.handleGetDirections}>
+                <Text style={styles.directionText}> Start Navigation </Text>
               </TouchableOpacity>
             </View>
           </BottomSheet>
           <SwipeablePanel
+            fullWidth={false}
             isActive={this.state.swipeablePanelActive}
             onClose={() => this.closePanel()}>
-            <View style={styles.bottomNavigationView}>
+            <View style={styles.bottomNearestNavigationView}>
               <View
                 style={{
                   flex: 1,
-                  marginLeft:10,
-                  marginRight:10,
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                 }}>
@@ -368,36 +429,80 @@ export default class NavigationScreen extends Component {
               </Text>
                 <View style={{ flex: 1, flexDirection: 'row' }}>
 
+
                   <TouchableOpacity
                     onPress={() => {
                       this.closePanel();
-                      this.props.navigation.navigate('Restaurant')
+                      this.props.navigation.navigate('Restaurant', {
+                        currentLatitude: this.state.currentLatitude,
+                        currentLongitude: this.state.currentLongitude
+                      })
+                      //  this.props.navigation.navigate('Restaurant')
                     }}>
 
-                    <Image source={require('../images/food.png')} />
+                    <Image source={require('../images/food.png')}
+                      style={styles.ImageIconStyle} />
+                    <Text style={styles.headline}> Restaurants </Text>
 
                   </TouchableOpacity>
 
+
                   <TouchableOpacity
                     onPress={() => {
                       this.closePanel();
-                      this.props.navigation.navigate('Atm')
+                      this.props.navigation.navigate('Atm', {
+                        currentLatitude: this.state.currentLatitude,
+                        currentLongitude: this.state.currentLongitude
+                      })
+                      //   this.props.navigation.navigate('Atm')
                     }}>
 
                     <Image source={require('../images/Atm.png')}
-                    >
-                    </Image>
+                      style={styles.ImageIconStyle} />
+
+                    <Text style={styles.headline}> Atm's </Text>
+
+                  </TouchableOpacity>
+
+
+
+
+                </View>
+
+                <View style={{ flex: 1, flexDirection: 'row' }}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.closePanel();
+                      this.props.navigation.navigate('MovieHall', {
+                        currentLatitude: this.state.currentLatitude,
+                        currentLongitude: this.state.currentLongitude
+                      })
+                    }}>
+
+                    <Image source={require('../images/Cinema.png')}
+                      style={styles.ImageIconStyle} />
+
+                    <Text style={styles.headline}> Cinema </Text>
+
                   </TouchableOpacity>
 
                   <TouchableOpacity
                     onPress={() => {
                       this.closePanel();
-                      this.props.navigation.navigate('Parking')
+                      this.props.navigation.navigate('ShoppingMall', {
+                        currentLatitude: this.state.currentLatitude,
+                        currentLongitude: this.state.currentLongitude
+                      })
+                      //this.props.navigation.navigate('ShoppingMall')
                     }}>
 
-                    <Image source={require('../images/Parking.png')}>
-                    </Image>
+                    <Image source={require('../images/shopping.png')}
+                      style={styles.ImageIconStyle} />
+
+                    <Text style={styles.headline}> Shopping Mall </Text>
+
                   </TouchableOpacity>
+
 
 
                 </View>
@@ -405,39 +510,173 @@ export default class NavigationScreen extends Component {
                   <TouchableOpacity
                     onPress={() => {
                       this.closePanel();
-                      this.props.navigation.navigate('MovieHall')
+                      //  this.props.navigation.navigate('Parking')
+                      this.props.navigation.navigate('Parking', {
+                        currentLatitude: this.state.currentLatitude,
+                        currentLongitude: this.state.currentLongitude
+                      })
                     }}>
 
-                    <Image source={require('../images/Cinema.png')}>
-                    </Image>
+                    <Image source={require('../images/Parking.png')}
+                      style={styles.ImageIconStyle} />
+
+                    <Text style={styles.headline}> Parking </Text>
+
                   </TouchableOpacity>
 
 
                   <TouchableOpacity
                     onPress={() => {
                       this.closePanel();
-                      this.props.navigation.navigate('ShoppingMall')
+                      this.props.navigation.navigate('Hospital', {
+                        currentLatitude: this.state.currentLatitude,
+                        currentLongitude: this.state.currentLongitude
+                      })
+                      //    this.props.navigation.navigate('Hospital')
                     }}>
+                    <Image source={require('../images/Hospital.png')} style={styles.ImageIconStyle} />
 
-                    <Image source={require('../images/Restaurant.png')}>
-                    </Image>
-                  </TouchableOpacity>
-
-
-                  <TouchableOpacity
-                    onPress={() => {
-                      this.closePanel();
-                      this.props.navigation.navigate('Hospital')
-                    }}>
-                    <Image source={require('../images/Hospital.png')}>
-                    </Image>
+                    <Text style={styles.headline}> Hospital </Text>
                   </TouchableOpacity>
                 </View>
               </View>
             </View>
           </SwipeablePanel>
+
+          <View>
+
+            <Modal
+
+              visible={this.state.Alert_Visibility}
+
+              transparent={true}
+
+              animationType={"fade"}
+
+              onRequestClose={() => { this.ShowCustomAlert(!this.state.Alert_Visibility) }} >
+
+
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+
+
+                <View style={styles.AlertMainView}>
+
+
+                  <Text style={styles.Alert_Title}>Send a report</Text>
+
+
+                  <View style={{ flex: 1, flexDirection: 'row' }}>
+                    <TouchableOpacity style={{ flex: .33 }}
+                      onPress={() => { this.ShowCustomAlert(!this.state.Alert_Visibility) }}>
+
+                      <Image source={require('../images/traffic.png')}
+                        style={styles.ImageIconStyle} />
+                      <Text style={styles.reportNameStyle}> Traffic </Text>
+
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: .33 }}
+                      onPress={() => { this.ShowCustomAlert(!this.state.Alert_Visibility) }}>
+
+                      <Image source={require('../images/police.png')}
+                        style={styles.ImageIconStyle} />
+                      <Text style={styles.reportNameStyle}> Police </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: .33 }}
+                      onPress={() => { this.ShowCustomAlert(!this.state.Alert_Visibility) }}>
+
+                      <Image source={require('../images/crash.png')}
+                        style={styles.ImageIconStyle} />
+                      <Text style={styles.reportNameStyle}> Accident </Text>
+
+                    </TouchableOpacity>
+
+                  </View>
+
+
+
+                  <View style={{ flex: 1, flexDirection: 'row' }}>
+                    <TouchableOpacity style={{ flex: .33 }}
+                      onPress={() => { this.ShowCustomAlert(!this.state.Alert_Visibility) }}>
+
+                      <Image source={require('../images/Hazard.png')}
+                        style={styles.ImageIconStyle} />
+                      <Text style={styles.reportNameStyle}> Hazard </Text>
+
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: .33 }}
+                      onPress={() => { this.ShowCustomAlert(!this.state.Alert_Visibility) }}>
+
+                      <Image source={require('../images/chat.png')}
+                        style={styles.ImageIconStyle} />
+                      <Text style={styles.reportNameStyle}> Map chat </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: .33 }}
+                      onPress={() => { this.ShowCustomAlert(!this.state.Alert_Visibility) }}>
+
+                      <Image source={require('../images/map_issue.png')}
+                        style={styles.ImageIconStyle} />
+                      <Text style={styles.reportNameStyle}> Map Issue </Text>
+
+                    </TouchableOpacity>
+
+                  </View>
+
+                  <View style={{ flex: 1, flexDirection: 'row' }}>
+                    <TouchableOpacity style={{ flex: .33 }}
+                      onPress={() => { this.ShowCustomAlert(!this.state.Alert_Visibility) }}>
+
+                      <Image source={require('../images/place.png')}
+                        style={styles.ImageIconStyle} />
+                      <Text style={styles.reportNameStyle}> Place </Text>
+
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: .33 }}
+                      onPress={() => { this.ShowCustomAlert(!this.state.Alert_Visibility) }}>
+
+                      <Image source={require('../images/road_side_help.png')}
+                        style={styles.ImageIconStyle} />
+                      <Text style={styles.reportNameStyle}> Roadside help </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: .33 }}
+                      onPress={() => { this.ShowCustomAlert(!this.state.Alert_Visibility) }}>
+
+                      <Image source={require('../images/closure.png')}
+                        style={styles.ImageIconStyle} />
+                      <Text style={styles.reportNameStyle}> Closure </Text>
+
+                    </TouchableOpacity>
+
+                  </View>
+
+
+
+                  <View style={{ flex: 1, flexDirection: 'column' }}>
+                    <Text style={styles.reportBottomStyle}> Reports are public. your KDN username will appear with your report. </Text>
+
+                    <TouchableOpacity
+                   onPress={() => { this.ShowCustomAlert(!this.state.Alert_Visibility) }}
+                    >
+
+
+                      <Text style={styles.TextStyle}> CLOSE </Text>
+
+                    </TouchableOpacity>
+
+
+                  </View>
+                </View>
+              </View>
+            </Modal>
+          </View>
         </View>
       </View>
+
 
     );
   }
@@ -463,10 +702,17 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+  bottomNearestNavigationView: {
+    backgroundColor: '#fff',
+    width: '100%',
+    height: 400,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   bottomNavigationView: {
     backgroundColor: '#fff',
     width: '100%',
-    height: 250,
+    height: 100,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -504,6 +750,85 @@ const styles = StyleSheet.create({
   image: {
     height: 40,
     marginTop: 40
+  },
+  headline: {
+    textAlign: 'center', // <-- the magic
+    fontWeight: 'bold',
+    fontSize: 15,
+    marginTop: 0,
+    width: 200
+  },
+  ImageIconStyle: {
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  alternativeLayoutButtonContainer: {
+    margin: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  AlertMainView: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: "#494e53",
+    height: '100%',
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#fff',
+    borderRadius: 7,
+
+  },
+  alert_main_view: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: "#4c4e54",
+    height: '100%',
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#fff',
+    borderRadius: 7,
+
+  },
+
+  Alert_Title: {
+
+    fontSize: 25,
+    color: "#fff",
+    textAlign: 'center',
+    padding: 10,
+    height: '28%'
+
+  },
+
+  Alert_Message: {
+
+    fontSize: 22,
+    color: "#fff",
+    textAlign: 'center',
+    padding: 10,
+    height: '42%'
+
+  },
+
+
+  TextStyle: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 22,
+    marginTop: 20
+  },
+
+  reportNameStyle: {
+    color: '#b9c0c9',
+    textAlign: 'center',
+    fontSize: 18
+  },
+  reportBottomStyle: {
+    color: '#6d7378',
+    marginLeft: 20,
+    marginRight: 20
+
   }
 
 });  

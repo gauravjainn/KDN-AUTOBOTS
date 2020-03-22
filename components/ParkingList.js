@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import { List, ListItem } from "react-native-elements";
+var currentLatitude ,currentLongitude;
 var _ = require('lodash');
 
 class ParkingList extends Component {
@@ -25,21 +26,23 @@ class ParkingList extends Component {
   }
 
   static navigationOptions = {
-    title: 'Restaurant List',
+    title: 'Parking List',
 
   };
 
 
   componentDidMount() {
-
+    const { navigation } = this.props;  
+    currentLatitude = navigation.getParam('currentLatitude', 'NO-User'); 
+    currentLongitude = navigation.getParam('currentLongitude', 'NO-User'); 
     this.fetchData();
   }
 
   fetchData = () => {
 
     const { pageToken } = this.state;
-    const urlFirst = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=24.5391,73.6883&radius=20000&type=parking&key=AIzaSyAAQ1Cppz62lgwYEJjzrkty7Nzi5ZYNCSM`
-    const urlNext = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=24.5391,73.6883&radius=20000&type=parking&key=AIzaSyAAQ1Cppz62lgwYEJjzrkty7Nzi5ZYNCSM&pagetoken=${pageToken}`;
+    const urlFirst = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${currentLatitude},${currentLongitude}&radius=20000&type=parking&key=AIzaSyAAQ1Cppz62lgwYEJjzrkty7Nzi5ZYNCSM`
+    const urlNext = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${currentLatitude},${currentLongitude}&radius=20000&type=parking&key=AIzaSyAAQ1Cppz62lgwYEJjzrkty7Nzi5ZYNCSM&pagetoken=${pageToken}`;
 
    // restaurant
    // atm

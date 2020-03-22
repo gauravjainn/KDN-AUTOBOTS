@@ -60,7 +60,7 @@ const Screen2_StackNavigator = createStackNavigator({
   Second: {
     screen: Screen2,
     navigationOptions: ({ navigation }) => ({
-      title: 'Demo Screen 2',
+      title: 'Screen 2',
       headerLeft:() =>  <NavigationDrawerStructure navigationProps={navigation} />,
       headerStyle: {
         backgroundColor: '#0f2671',
@@ -75,7 +75,7 @@ const Screen3_StackNavigator = createStackNavigator({
   Third: {
     screen: Screen3,
     navigationOptions: ({ navigation }) => ({
-      title: 'Demo Screen 3',
+      title: 'Screen 3',
       headerLeft:() =>  <NavigationDrawerStructure navigationProps={navigation} />,
       headerStyle: {
         backgroundColor: '#0f2671',
