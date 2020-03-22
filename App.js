@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createAppContainer } from 'react-navigation';
 import LoginActivity from './components/LoginActivity';
@@ -17,6 +16,7 @@ import PaarkingList from './components/ParkingList';
 import MovieHallList from './components/MovieHallList';
 import ShoppingMallList from './components/ShoppingMallList';
 import HospitalList from './components/HospitalList';
+
 
 const NavStack = createStackNavigator(
     {

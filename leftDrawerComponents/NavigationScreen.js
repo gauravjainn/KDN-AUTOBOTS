@@ -8,6 +8,8 @@ import MapViewDirections from 'react-native-maps-directions';
 import { BottomSheet } from 'react-native-btr';
 import SwipeablePanel from 'rn-swipeable-panel';
 import getDirections from 'react-native-google-maps-directions'
+import MapViewNavigation from 'react-native-maps-navigation'
+import SwipeModal from 'react-native-modal';
 
 
 const { width, height } = Dimensions.get('window')
@@ -19,13 +21,11 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO
 var directionData;
 var _ = require('lodash');
 
-export default class NavigationScreen extends Component {
 
+export default class NavigationScreen extends Component {
 
   constructor(props) {
     super(props)
-    // this._isMounted = false;
-
     this.mapView = null;
     this.state = {
       Alert_Visibility: false,
@@ -53,17 +53,10 @@ export default class NavigationScreen extends Component {
       },
 
       visible: false,
+      isVisible: false,
       TextValue: '',
     }
   }
-
-  ShowCustomAlert(visible) {
-
-    this.setState({ Alert_Visibility: visible });
-
-  }
-
-
 
 
   handleGetDirections = () => {
@@ -85,7 +78,7 @@ export default class NavigationScreen extends Component {
           key: "dir_action",
           value: "navigate"       // this instantly initializes navigation using the given travel mode
         }
-      ],
+      ]
       // waypoints: [
       //   {
       //     latitude: -33.8600025,
@@ -102,7 +95,16 @@ export default class NavigationScreen extends Component {
       // ]
     }
 
+
     getDirections(data)
+  }
+
+  ShowCustomAlert(visible) {
+    this.setState({ Alert_Visibility: visible });
+  }
+
+  ShowMoreAlert(visible) {
+    this.setState({ isVisible: visible });
   }
 
   openPanel = () => {
@@ -120,6 +122,7 @@ export default class NavigationScreen extends Component {
 
 
   componentDidMount = () => {
+
     var that = this;
     //Checking for the permission just after component loaded
     if (Platform.OS === 'ios') {
@@ -179,8 +182,6 @@ export default class NavigationScreen extends Component {
 
         this.setState({ initialPosition: initialRegion })
         this.mapView.animateToRegion(initialRegion, 2000);
-        this.openPanel();
-
       },
       (error) => alert(error.message),
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
@@ -225,6 +226,42 @@ export default class NavigationScreen extends Component {
 
 
   render() {
+
+    const { navigation } = this.props;
+    var lat = parseFloat(navigation.getParam('destinationLatitude', ''))
+    var long = parseFloat(navigation.getParam('destinationLongitude', ''))
+    var destinationName = navigation.getParam('destinationName', '')
+
+    console.log("lat=====" + lat)
+    console.log("destinationName=====" + destinationName)
+    if (destinationName == '') {
+
+    } else {
+      var initialdestination = {
+        latitude: lat,
+        longitude: long,
+        latitudeDelta: LATITUDE_DELTA,
+        longitudeDelta: LONGITUDE_DELTA,
+        title: destinationName
+      }
+
+      directionData = {
+        latitude: lat,
+        longitude: long,
+        latitudeDelta: LATITUDE_DELTA,
+        longitudeDelta: LONGITUDE_DELTA,
+        title: destinationName
+      }
+
+       this.setState({ destination: initialdestination })
+       this.mapView.animateToRegion(initialdestination, 2000);
+       this.closePanel();
+       this.displayDirectionPoly();
+        //this._toggleBottomNavigationView();
+
+    }
+
+
     var mapStyle = [{ "elementType": "geometry", "stylers": [{ "color": "#242f3e" }] }, { "elementType": "labels.text.fill", "stylers": [{ "color": "#746855" }] }, { "elementType": "labels.text.stroke", "stylers": [{ "color": "#242f3e" }] }, { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] }, { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] }, { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#263c3f" }] }, { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#6b9a76" }] }, { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#38414e" }] }, { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#212a37" }] }, { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#9ca5b3" }] }, { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#746855" }] }, { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#1f2835" }] }, { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#f3d19c" }] }, { "featureType": "transit", "elementType": "geometry", "stylers": [{ "color": "#2f3948" }] }, { "featureType": "transit.station", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] }, { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#17263c" }] }, { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#515c6d" }] }, { "featureType": "water", "elementType": "labels.text.stroke", "stylers": [{ "color": "#17263c" }] }];
 
     return (
@@ -275,7 +312,7 @@ export default class NavigationScreen extends Component {
                 this.mapView.animateToRegion(initialdestination, 2000);
                 this.closePanel();
                 this.displayDirectionPoly();
-                this._toggleBottomNavigationView();
+                //  this._toggleBottomNavigationView();
 
                 console.log("lat===" + lat);
                 console.log("long===" + long);
@@ -330,32 +367,9 @@ export default class NavigationScreen extends Component {
             //  renderLeftButton={()  => <Image source={require('path/custom/left-icon')} />}
             //   renderRightButton={() => <Text>Custom text after the input</Text>}
             />
-
-            {/* <View style={{ flex: 1, flexDirection: 'row' }}> */}
-            <View style={styles.alternativeLayoutButtonContainer}>
-              <TouchableOpacity
-                onPress={() => {
-                  this.openPanel();
-                }}>
-
-                <Image
-                  source={require('../images/Explore.png')} />
-
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => {
-                  this.ShowCustomAlert(true);
-                }}>
-
-                <Image source={require('../images/Explore.png')} />
-
-              </TouchableOpacity>
-            </View>
-
           </View>
         </View>
-        <View style={{ width: '100%', height: '100%', top: '0%', zIndex: 1, position: 'absolute' }} >
+        <View style={{ width: '100%', height: '92%', top: '0%', zIndex: 1, position: 'absolute' }} >
           <MapView
             style={styles.mapStyle}
             showsUserLocation={true}
@@ -377,7 +391,9 @@ export default class NavigationScreen extends Component {
               destination={this.state.directionDetails}
               strokeWidth={5}
               strokeColor="#24a0ed"
-              apikey={'AIzaSyAAQ1Cppz62lgwYEJjzrkty7Nzi5ZYNCSM'} />
+              apikey={'AIzaSyAAQ1Cppz62lgwYEJjzrkty7Nzi5ZYNCSM'}
+            />
+
 
             <Marker
               coordinate={{
@@ -392,6 +408,8 @@ export default class NavigationScreen extends Component {
             />
 
           </MapView>
+
+
 
           <BottomSheet
             visible={this.state.visible}
@@ -412,6 +430,8 @@ export default class NavigationScreen extends Component {
               </TouchableOpacity>
             </View>
           </BottomSheet>
+
+
           <SwipeablePanel
             fullWidth={false}
             isActive={this.state.swipeablePanelActive}
@@ -437,7 +457,8 @@ export default class NavigationScreen extends Component {
                         currentLatitude: this.state.currentLatitude,
                         currentLongitude: this.state.currentLongitude
                       })
-                      //  this.props.navigation.navigate('Restaurant')
+
+
                     }}>
 
                     <Image source={require('../images/food.png')}
@@ -544,6 +565,18 @@ export default class NavigationScreen extends Component {
           </SwipeablePanel>
 
           <View>
+
+
+            <SwipeModal
+              isVisible={this.state.isVisible}
+              onSwipeComplete={() => this.setState({ isVisible: false })}
+              backgroundColor={'white'}
+              swipeDirection="left">
+              <View style={{ flex: 1 }}>
+                <Text onPress={() => this.setState({ isVisible: false })} >I am the modal content!</Text>
+              </View>
+            </SwipeModal>
+
 
             <Modal
 
@@ -660,7 +693,7 @@ export default class NavigationScreen extends Component {
                     <Text style={styles.reportBottomStyle}> Reports are public. your KDN username will appear with your report. </Text>
 
                     <TouchableOpacity
-                   onPress={() => { this.ShowCustomAlert(!this.state.Alert_Visibility) }}
+                      onPress={() => { this.ShowCustomAlert(!this.state.Alert_Visibility) }}
                     >
 
 
@@ -674,7 +707,40 @@ export default class NavigationScreen extends Component {
               </View>
             </Modal>
           </View>
+
         </View>
+        <View style={styles.bottomView}>
+          <View style={{ flex: 1, flexDirection: 'row' }}>
+            <TouchableOpacity style={{ flex: .33 }}
+              onPress={() => { this.ShowMoreAlert(!this.state.isVisible) }}>
+
+              <Image source={require('../images/grid.png')}
+                style={styles.ImageIconStyle} />
+              <Text style={styles.reportNameStyle}> More </Text>
+
+            </TouchableOpacity>
+
+            <TouchableOpacity style={{ flex: .33 }}
+              onPress={() => { this.openPanel(); }}>
+
+              <Image source={require('../images/compass.png')}
+                style={styles.ImageIconStyle} />
+              <Text style={styles.reportNameStyle}> Explore </Text>
+
+            </TouchableOpacity>
+
+            <TouchableOpacity style={{ flex: .33 }}
+              onPress={() => { this.ShowCustomAlert(!this.state.Alert_Visibility) }}>
+
+              <Image source={require('../images/report_map.png')}
+                style={styles.ImageIconStyle} />
+              <Text style={styles.reportNameStyle}> Report </Text>
+
+            </TouchableOpacity>
+
+          </View>
+        </View>
+
       </View>
 
 
@@ -701,6 +767,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+  },
+  bottomView: {
+    width: '100%',
+    height: '8%',
+    backgroundColor: '#2b303c',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute', //Here is the trick
+    bottom: 0, //Here is the trick
   },
   bottomNearestNavigationView: {
     backgroundColor: '#fff',
@@ -759,12 +834,12 @@ const styles = StyleSheet.create({
     width: 200
   },
   ImageIconStyle: {
+    marginTop: 3,
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
   },
   alternativeLayoutButtonContainer: {
-    margin: 20,
     flexDirection: 'row',
     justifyContent: 'space-between'
   },
@@ -776,41 +851,15 @@ const styles = StyleSheet.create({
     width: '100%',
     borderWidth: 1,
     borderColor: '#fff',
-    borderRadius: 7,
-
+    borderRadius: 7
   },
-  alert_main_view: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: "#4c4e54",
-    height: '100%',
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#fff',
-    borderRadius: 7,
-
-  },
-
   Alert_Title: {
-
     fontSize: 25,
     color: "#fff",
     textAlign: 'center',
     padding: 10,
     height: '28%'
-
   },
-
-  Alert_Message: {
-
-    fontSize: 22,
-    color: "#fff",
-    textAlign: 'center',
-    padding: 10,
-    height: '42%'
-
-  },
-
 
   TextStyle: {
     color: '#fff',

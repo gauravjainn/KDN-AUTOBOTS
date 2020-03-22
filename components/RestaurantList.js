@@ -9,7 +9,8 @@ import {
 } from 'react-native';
 
 import { List, ListItem } from "react-native-elements";
-var currentLatitude ,currentLongitude;
+var currentLatitude, currentLongitude;
+
 var _ = require('lodash');
 
 
@@ -22,7 +23,10 @@ class RestaurantList extends Component {
       data: [],
       pageToken: '',
       refreshing: false,
-      siteTitle: ''
+      siteTitle: '',
+      destinationLatitude: '',
+      destinationLongitude: '',
+      destinationName: ''
     };
   }
 
@@ -33,9 +37,9 @@ class RestaurantList extends Component {
 
 
   componentDidMount() {
-    const { navigation } = this.props;  
-     currentLatitude = navigation.getParam('currentLatitude', 'NO-User'); 
-     currentLongitude = navigation.getParam('currentLongitude', 'NO-User'); 
+    const { navigation } = this.props;
+    currentLatitude = navigation.getParam('currentLatitude', 'NO-User');
+    currentLongitude = navigation.getParam('currentLongitude', 'NO-User');
     this.fetchData();
   }
 
@@ -45,9 +49,9 @@ class RestaurantList extends Component {
     const urlFirst = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${currentLatitude},${currentLongitude}&radius=20000&type=restaurant&key=AIzaSyAAQ1Cppz62lgwYEJjzrkty7Nzi5ZYNCSM`
     const urlNext = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${currentLatitude},${currentLongitude}&radius=20000&type=restaurant&key=AIzaSyAAQ1Cppz62lgwYEJjzrkty7Nzi5ZYNCSM&pagetoken=${pageToken}`;
 
-   // restaurant
-   // atm
-   // parking
+    // restaurant
+    // atm
+    // parking
 
     let url = pageToken === '' ? urlFirst : urlNext
     console.log(url);
@@ -59,7 +63,7 @@ class RestaurantList extends Component {
       })
       .then(res => {
 
-        const arrayData = _.uniqBy( [...this.state.data, ...res.results] , 'id' )
+        const arrayData = _.uniqBy([...this.state.data, ...res.results], 'id')
         console.log("RESULTS ====" + JSON.stringify(res.results));
         this.setState({
           siteTitle: "Resturants Near By",
@@ -76,19 +80,19 @@ class RestaurantList extends Component {
       });
   };
   renderSeparator = () => {
-   return (
-     <View
-       style={{
-         height: 1,
-         width: "86%",
-         backgroundColor: "#CED0CE",
-         marginLeft: "14%"
-       }}
-     />
-   );
+    return (
+      <View
+        style={{
+          height: 1,
+          width: "86%",
+          backgroundColor: "#CED0CE",
+          marginLeft: "14%"
+        }}
+      />
+    );
   };
   renderHeader = () => {
-    return (<Text style={{ alignSelf: "center", fontWeight: "bold", fontSize: 20, marginBottom: 10}}>{this.state.siteTitle}</Text>)
+    return (<Text style={{ alignSelf: "center", fontWeight: "bold", fontSize: 20, marginBottom: 10 }}>{this.state.siteTitle}</Text>)
   };
   renderFooter = () => {
 
@@ -126,51 +130,52 @@ class RestaurantList extends Component {
 
   render() {
     return (
-      <View style={styles.MainContainer}>    
-      <FlatList
-        data={this.state.data}
-        keyExtractor={item => item.id}
-        ListHeaderComponent={this.renderHeader}
-        ListFooterComponent={this.renderFooter}
-        renderItem={({ item }) =>{
-   
-          const rating = item.rating ? item.rating : 'na'
+      <View style={styles.MainContainer}>
+        <FlatList
+          data={this.state.data}
+          keyExtractor={item => item.id}
+          ListHeaderComponent={this.renderHeader}
+          ListFooterComponent={this.renderFooter}
+          renderItem={({ item }) => {
 
-          return (<View>
-            <ListItem
-              roundAvatar
-              title={`${item.name}`+" ("+`${rating}`+")"}
-              subtitle={`${item.vicinity}` }
-              avatar={{ uri: item.icon }}
-              containerStyle={{ borderBottomWidth: 0 }}
+            const rating = item.rating ? item.rating : 'na'
 
-              onPress={() => {
-                this.props.navigation.navigate('Home')
-              }  
-              //this.props.navigation.navigate('Home')
-              // onPress={() => {
-              //   this.props.navigation.navigate('Restaurant', {  
-              //     currentLatitude: this.state.currentLatitude,
-              //     currentLongitude: this.state.currentLongitude
-              // })  
-              //  this.props.navigation.navigate('Restaurant')
-              }
-            />
-            <View
-              style={{
-                height: 1,
-                width: "86%",
-                backgroundColor: "#CED0CE",
-                marginLeft: "14%"
-              }}
-            /></View>
-          )
-        }}
-        onRefresh={this.handleRefresh}
-        refreshing={this.state.refreshing}
-        onEndReached={this.handleLoadMore}
-        onEndReachedThreshold={50}
-      />
+            return (<View>
+              <ListItem
+                roundAvatar
+                title={`${item.name}` + " (" + `${rating}` + ")"}
+                subtitle={`${item.vicinity}`}
+                avatar={{ uri: item.icon }}
+                containerStyle = {{ borderBottomWidth: 0 }}
+                //  onPress={() => this.props.navigation.goBack()}
+
+                onPress={() => {
+                  console.log("destination name ==" + item.name)
+                  console.log("destination lat ==" + item.geometry.location.lat)
+                  this.props.navigation.navigate('Navigation', {
+                    
+                    destinationLatitude : item.geometry.location.lat,
+                    destinationLongitude: item.geometry.location.lng,
+                    destinationName: item.name
+                  })
+                  
+                }}
+              />
+              <View
+                style={{
+                  height: 1,
+                  width: "86%",
+                  backgroundColor: "#CED0CE",
+                  marginLeft: "14%"
+                }}
+              /></View>
+            )
+          }}
+          onRefresh={this.handleRefresh}
+          refreshing={this.state.refreshing}
+          onEndReached={this.handleLoadMore}
+          onEndReachedThreshold={50}
+        />
       </View>
     );
   }
@@ -178,8 +183,9 @@ class RestaurantList extends Component {
 
 const styles = StyleSheet.create({
   MainContainer: {
-    flex: 1  
-}
-});  
+    flex: 1
+
+  }
+});
 
 export default RestaurantList;

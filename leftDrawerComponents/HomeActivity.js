@@ -3,14 +3,6 @@ import React, { Component } from 'react';
 //import react in our code.
 import { View, Image, TouchableOpacity } from 'react-native';
 // import all basic components
-
-//For React Navigation 3+
-//import {
-//  createStackNavigator,
-//  createDrawerNavigator,
-//  createAppContainer,
-//} from 'react-navigation';
-
 //For React Navigation 4+
 import {createAppContainer} from 'react-navigation';
 import {createDrawerNavigator} from 'react-navigation-drawer';
