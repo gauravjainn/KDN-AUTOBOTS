@@ -7,7 +7,8 @@ import {
     TouchableOpacity,
     TextInput,
     Picker,
-    ActivityIndicator
+    ActivityIndicator,
+    ScrollView
 } from 'react-native';
 import { Divider } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -17,15 +18,17 @@ class ProfileScreen extends Component {
 
     constructor(props) {
         super(props);
+        this.SaveProfileData = this.SaveProfileData.bind(this);
+        this.showProfileData = this.showProfileData.bind(this);
         this.state = {
             JSONResult: '',
             userId: '',
             gender: '',
-            user: '',
             username: '',
             fullname: '',
             email: '',
-            mobileNumber: ''
+            mobileNumber: '',
+            baseUrl: 'http://kd.smeezy.com/api',
         };
     }
 
@@ -42,22 +45,41 @@ class ProfileScreen extends Component {
         this.setState({ loading: false });
     }
 
-    updateUser = (user) => {
-        this.setState({ user: user })
+    updateUser = (gender) => {
+        this.setState({ gender: gender })
     }
 
     componentDidMount() {
+
         AsyncStorage.getItem('@user_id').then((userId) => {
             if (userId) {
                 this.setState({ userId: userId });
                 console.log("Reset user id ====" + this.state.userId);
+                this.showLoading()
+                this.showProfileData();
             }
         });
 
-        this.showLoading()
-        this.showProfileData();
+
     }
 
+
+    CheckTextInput = () => {
+        //  Handler for the Submit onPress
+        if (this.state.username != '') {
+            //Check for the Name TextInput
+            if (this.state.mobileNumber != '') {
+                //Check for the Email TextInput
+                //this.showLoading();
+                this.SaveProfileData();
+
+            } else {
+                alert('Please Enter Mobile number');
+            }
+        } else {
+            alert('Please Enter Username');
+        }
+    };
 
     showProfileData() {
 
@@ -79,18 +101,63 @@ class ProfileScreen extends Component {
                 this.hideLoading();
                 if (responseJson.replyStatus == 'success') {
 
+                    this.setState({ email: responseJson.data.email });
+                    this.setState({ username: responseJson.data.name });
+                    this.setState({ gender: responseJson.data.gender });
+                    this.setState({ mobileNumber: responseJson.data.mobileno });
 
 
-
-                    //  this.props.navigation.navigate('AccountInformation')
+                    if (responseJson.data.first_name == null || responseJson.data.first_name == '') {
+                        //do nothing
+                    } else {
+                        this.setState({ fullname: responseJson.data.first_name + " " + responseJson.data.last_name });
+                    }
 
                 } else {
                     alert(responseJson.replyMessage);
                 }
-                console.log("server response===" + JSON.stringify(responseJson))
-                console.log("server STATUS  ===" + responseJson.replyStatus)
-                console.log("server MESSAGE  ===" + responseJson.replyMessage)
+            }).catch(err => {
+                this.hideLoading();
+                console.log(err)
+            })
 
+    }
+
+    SaveProfileData() {
+
+        let formdata = new FormData();
+        formdata.append("methodName", 'get_profile_data')
+        formdata.append("user_id", this.state.userId)
+
+        var that = this;
+        var url = that.state.baseUrl;
+        console.log('url:' + url);
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+            body: formdata
+        }).then((response) => response.json())
+            .then(responseJson => {
+                this.hideLoading();
+                if (responseJson.replyStatus == 'success') {
+
+                    this.setState({ email: responseJson.data.email });
+                    this.setState({ username: responseJson.data.name });
+                    this.setState({ gender: responseJson.data.gender });
+                    this.setState({ mobileNumber: responseJson.data.mobileno });
+
+
+                    if (responseJson.data.first_name == null || responseJson.data.first_name == '') {
+                        //do nothing
+                    } else {
+                        this.setState({ fullname: responseJson.data.first_name + " " + responseJson.data.last_name });
+                    }
+
+                } else {
+                    alert(responseJson.replyMessage);
+                }
             }).catch(err => {
                 this.hideLoading();
                 console.log(err)
@@ -101,6 +168,7 @@ class ProfileScreen extends Component {
 
     render() {
         return (
+            <ScrollView style={styles.container}>
             <View style={styles.container}>
 
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#cee2ea', height: 60 }}>
@@ -121,7 +189,7 @@ class ProfileScreen extends Component {
                     </TouchableOpacity>
 
                     <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
-                        onPress={() => { this.props.navigation.navigate('AccountInformation') }}>
+                        onPress={() => { this.CheckTextInput() }}>
 
                         <Image source={require('../images/blue-tick.png')}
                             style={styles.ImageIconStyle} />
@@ -163,6 +231,7 @@ class ProfileScreen extends Component {
                             placeholderTextColor="#58666c"
                             underlineColorAndroid='transparent'
                             style={styles.input}
+                            value={this.state.fullname}
                             onChangeText={fullname => this.setState({ fullname })}
                         />
 
@@ -186,6 +255,7 @@ class ProfileScreen extends Component {
                             placeholderTextColor="#58666c"
                             underlineColorAndroid='transparent'
                             style={styles.input}
+                            value={this.state.username}
                             onChangeText={username => this.setState({ username })}
                         />
 
@@ -209,6 +279,7 @@ class ProfileScreen extends Component {
                             placeholderTextColor="#58666c"
                             underlineColorAndroid='transparent'
                             style={styles.input}
+                            value={this.state.email}
                             editable={false}
                             onChangeText={email => this.setState({ email })}
                         />
@@ -223,8 +294,9 @@ class ProfileScreen extends Component {
                     <Text style={styles.TextStyleOptionHeading}> Gender </Text>
 
                     <Picker style={styles.input}
-                        selectedValue={this.state.user}
-                        onValueChange={this.updateUser}>
+                        selectedValue={this.state.gender}
+                        onValueChange={this.updateUser}
+                        value={this.state.gender}>
                         <Picker.Item label="Male" value="male" />
                         <Picker.Item label="Female" value="female" />
                         <Picker.Item label="Other" value="other" />
@@ -253,6 +325,7 @@ class ProfileScreen extends Component {
                             placeholderTextColor="#58666c"
                             underlineColorAndroid='transparent'
                             style={styles.input}
+                            value={this.state.mobileNumber}
                             onChangeText={mobileNumber => this.setState({ mobileNumber })}
                         />
 
@@ -266,6 +339,7 @@ class ProfileScreen extends Component {
                 )}
 
             </View>
+            </ScrollView>
 
         );
     }

@@ -96,14 +96,15 @@ class ChangePasswordScreen extends Component {
                 this.hideLoading();
                 if (responseJson.replyStatus == 'success') {
 
-                    this.props.navigation.navigate('AccountInformation')
+                    console.log("server response===" + JSON.stringify(responseJson))
+                    console.log("server email  ===" + responseJson.email)
+                 //   this.props.navigation.navigate('AccountInformation')
 
                 } else {
                     alert(responseJson.replyMessage);
                 }
-                console.log("server response===" + JSON.stringify(responseJson))
-                console.log("server STATUS  ===" + responseJson.replyStatus)
-                console.log("server MESSAGE  ===" + responseJson.replyMessage)
+               
+              //  console.log("server MESSAGE  ===" + responseJson.replyMessage)
             
             }).catch(err => {
                 this.hideLoading();

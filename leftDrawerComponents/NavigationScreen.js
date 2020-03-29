@@ -628,6 +628,7 @@ export default class NavigationScreen extends Component {
                   <Text style={styles.TextStyleProfileName}>Gaurav Jain</Text>
 
                 </View>
+
                 <View style={styles.NavDrawerBottomView}>
 
 

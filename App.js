@@ -22,7 +22,8 @@ import VehicleTypeScreen from './leftDrawerComponents/VehicleTypeScreen';
 import AccountInformationScreen from './leftDrawerComponents/AccountInformation';
 import ChangePasswordScreen from './leftDrawerComponents/ChangePasswordScreen';
 import ProfileScreen from './leftDrawerComponents/ProfileScreen';
-
+import AboutScreen from './leftDrawerComponents/AboutScreen';
+import PrivacyScreen from './leftDrawerComponents/PrivacyScreen';
 
 
 const NavStack = createStackNavigator(
@@ -47,7 +48,9 @@ const NavStack = createStackNavigator(
         VehicleType : {screen : VehicleTypeScreen},
         AccountInformation : {screen : AccountInformationScreen},
         ChangePassword : {screen: ChangePasswordScreen},
-        Profile : {screen: ProfileScreen}
+        Profile : {screen: ProfileScreen},
+        About : {screen: AboutScreen},
+        Privacy : {screen: PrivacyScreen},
         
     },
     {

@@ -177,7 +177,8 @@ class SettingsScreen extends Component {
 
 
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60, marginTop: 30 }}>
-          <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
+          <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
+                   onPress={() => { this.props.navigation.navigate('About') }}>
 
             <Image source={require('../images/about.png')}
               style={styles.ImageIconStyle} />
@@ -185,16 +186,15 @@ class SettingsScreen extends Component {
           </TouchableOpacity>
 
 
-          <TouchableOpacity style={{ flex: .60, justifyContent: 'flex-start' }}>
+          <TouchableOpacity style={{ flex: .60, justifyContent: 'flex-start' }}
+           onPress={() => { this.props.navigation.navigate('About') }}>
 
             <Text style={styles.TextStyleSettingOption}> About </Text>
 
           </TouchableOpacity>
 
           <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
-            onPress={() => {
-
-            }}>
+           onPress={() => { this.props.navigation.navigate('About') }}>
 
             <Image source={require('../images/forward_arrow_left_drawer.png')}
               style={styles.ImageIconStyle}
@@ -207,7 +207,8 @@ class SettingsScreen extends Component {
 
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}>
 
-          <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
+          <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
+          onPress={() => { this.props.navigation.navigate('Privacy')}} >
 
             <Image source={require('../images/privacy.png')}
               style={styles.ImageIconStyle} />
@@ -215,16 +216,15 @@ class SettingsScreen extends Component {
           </TouchableOpacity>
 
 
-          <TouchableOpacity style={{ flex: .60, justifyContent: 'flex-start' }}>
+          <TouchableOpacity style={{ flex: .60, justifyContent: 'flex-start' }}
+          onPress={() => { this.props.navigation.navigate('Privacy')}} >
 
             <Text style={styles.TextStyleSettingOption}>Privacy</Text>
 
           </TouchableOpacity>
 
           <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
-            onPress={() => {
-
-            }}>
+              onPress={() => { this.props.navigation.navigate('Privacy')}} >
 
             <Image source={require('../images/forward_arrow_left_drawer.png')}
               style={styles.ImageIconStyle}
