@@ -12,7 +12,7 @@ import {
   Image,
   ImageBackground
 } from 'react-native';
-import { AsyncStorage} from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-community/async-storage';
 
 class LoginActivity extends Component {
   constructor(props) {
@@ -132,6 +132,7 @@ class LoginActivity extends Component {
   async saveLoginUserId(value) {
     try {
       await AsyncStorage.setItem('@user_id', value);
+      await AsyncStorage.setItem('@is_login', "1");
     } catch (error) {
       console.log("Error saving data" + error);
     }

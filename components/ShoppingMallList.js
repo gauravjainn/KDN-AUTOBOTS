@@ -21,7 +21,8 @@ class ShoppingMallList extends Component {
       data: [],
       pageToken: '',
       refreshing: false,
-      siteTitle: ''
+      siteTitle: '',
+      cancel: '',
     };
   }
 
@@ -62,6 +63,7 @@ class ShoppingMallList extends Component {
         console.log("RESULTS ====" + JSON.stringify(res.results));
         this.setState({
           siteTitle: "Shopping Mall Near By",
+          cancel: "Cancel",
           data: pageToken === '' ? res.results : arrayData,
           loading: false,
           refreshing: false,
@@ -86,7 +88,14 @@ class ShoppingMallList extends Component {
    );
   };
   renderHeader = () => {
-    return (<Text style={{ alignSelf: "center", fontWeight: "bold", fontSize: 20, marginBottom: 10}}>{this.state.siteTitle}</Text>)
+    return (
+      <View style={{ flex: 1, flexDirection: 'row' }}>
+        <Text style={{ alignSelf: "center", fontWeight: "bold", fontSize: 20, marginBottom: 10, marginLeft:10, flex: .7, color : '#2b303c' }}>
+          {this.state.siteTitle}</Text>
+          <Text onPress={() => this.props.navigation.goBack()} style={{ alignSelf: "center", fontWeight: "bold", fontSize: 20, marginBottom: 10, flex: .3 , color : '#2b303c'}}>
+    {this.state.cancel} </Text>
+      </View>
+    )
   };
   renderFooter = () => {
 
@@ -141,6 +150,17 @@ class ShoppingMallList extends Component {
               subtitle={`${item.vicinity}` }
               avatar={{ uri: item.icon }}
               containerStyle={{ borderBottomWidth: 0 }}
+
+              onPress={() => {
+                console.log("destination name ==" + item.name)
+                console.log("destination lat ==" + item.geometry.location.lat)
+                this.props.navigation.navigate('Navigation', {
+
+                  destinationLatitude: item.geometry.location.lat,
+                  destinationLongitude: item.geometry.location.lng,
+                  destinationName: item.name
+                })
+              }}
             />
             <View
               style={{

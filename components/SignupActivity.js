@@ -24,7 +24,6 @@ class SignupActivity extends Component {
             username: '',
             email: '',
             password: '',
-            gender: '',
             mobilenumber: '',
             status: '',
             wholeResult: '',

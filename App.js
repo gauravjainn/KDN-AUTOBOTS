@@ -16,6 +16,13 @@ import PaarkingList from './components/ParkingList';
 import MovieHallList from './components/MovieHallList';
 import ShoppingMallList from './components/ShoppingMallList';
 import HospitalList from './components/HospitalList';
+import SettingsScreen from './leftDrawerComponents/SettingsScreen';
+import VehicleDetailScreen from './leftDrawerComponents/VehicleDetailScreen';
+import VehicleTypeScreen from './leftDrawerComponents/VehicleTypeScreen';
+import AccountInformationScreen from './leftDrawerComponents/AccountInformation';
+import ChangePasswordScreen from './leftDrawerComponents/ChangePasswordScreen';
+import ProfileScreen from './leftDrawerComponents/ProfileScreen';
+
 
 
 const NavStack = createStackNavigator(
@@ -34,7 +41,14 @@ const NavStack = createStackNavigator(
         MovieHall : {screen : MovieHallList} ,
         ShoppingMall : {screen : ShoppingMallList} ,
         Hospital : {screen : HospitalList} ,
-        Navigation : {screen : NavigationScreen} 
+        Navigation : {screen : NavigationScreen} ,
+        Settings : {screen : SettingsScreen},
+        VehicleDetail : {screen : VehicleDetailScreen},
+        VehicleType : {screen : VehicleTypeScreen},
+        AccountInformation : {screen : AccountInformationScreen},
+        ChangePassword : {screen: ChangePasswordScreen},
+        Profile : {screen: ProfileScreen}
+        
     },
     {
         initialRouteName: 'Splash',

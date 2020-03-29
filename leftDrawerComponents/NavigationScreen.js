@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
-import { View, Text, StyleSheet, Image, PermissionsAndroid, Platform, Dimensions, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, Image, PermissionsAndroid, Platform, Dimensions, TouchableOpacity, Modal, TextInput } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapViewDirections from 'react-native-maps-directions';
 import { BottomSheet } from 'react-native-btr';
@@ -10,6 +10,8 @@ import SwipeablePanel from 'rn-swipeable-panel';
 import getDirections from 'react-native-google-maps-directions'
 import MapViewNavigation from 'react-native-maps-navigation'
 import SwipeModal from 'react-native-modal';
+import { Divider } from 'react-native-elements';
+import AsyncStorage from '@react-native-community/async-storage';
 
 
 const { width, height } = Dimensions.get('window')
@@ -20,6 +22,7 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO
 
 var directionData;
 var _ = require('lodash');
+console.disableYellowBox = true;
 
 
 export default class NavigationScreen extends Component {
@@ -122,7 +125,7 @@ export default class NavigationScreen extends Component {
 
 
   componentDidMount = () => {
-
+    this.props.navigation.addListener('willFocus', this.load)
     var that = this;
     //Checking for the permission just after component loaded
     if (Platform.OS === 'ios') {
@@ -152,6 +155,46 @@ export default class NavigationScreen extends Component {
       requestLocationPermission();
     }
   }
+
+
+  load = () => {
+
+    const { navigation } = this.props;
+    var lat = parseFloat(navigation.getParam('destinationLatitude', ''))
+    var long = parseFloat(navigation.getParam('destinationLongitude', ''))
+    var destinationName = navigation.getParam('destinationName', '')
+
+    console.log("lat=====" + lat)
+    console.log("destinationName=====" + destinationName)
+    if (destinationName == '') {
+
+    } else {
+      var initialdestination = {
+        latitude: lat,
+        longitude: long,
+        latitudeDelta: LATITUDE_DELTA,
+        longitudeDelta: LONGITUDE_DELTA,
+        title: destinationName
+      }
+
+      directionData = {
+        latitude: lat,
+        longitude: long,
+        latitudeDelta: LATITUDE_DELTA,
+        longitudeDelta: LONGITUDE_DELTA,
+        title: destinationName
+      }
+
+      this.setState({ destination: initialdestination })
+      this.mapView.animateToRegion(initialdestination, 2000);
+      this.closePanel();
+      this.displayDirectionPoly();
+      // this._toggleBottomNavigationView();
+
+    }
+
+  }
+
 
   callLocation(that) {
     //alert("callLocation Called");
@@ -226,42 +269,6 @@ export default class NavigationScreen extends Component {
 
 
   render() {
-
-    const { navigation } = this.props;
-    var lat = parseFloat(navigation.getParam('destinationLatitude', ''))
-    var long = parseFloat(navigation.getParam('destinationLongitude', ''))
-    var destinationName = navigation.getParam('destinationName', '')
-
-    console.log("lat=====" + lat)
-    console.log("destinationName=====" + destinationName)
-    if (destinationName == '') {
-
-    } else {
-      var initialdestination = {
-        latitude: lat,
-        longitude: long,
-        latitudeDelta: LATITUDE_DELTA,
-        longitudeDelta: LONGITUDE_DELTA,
-        title: destinationName
-      }
-
-      directionData = {
-        latitude: lat,
-        longitude: long,
-        latitudeDelta: LATITUDE_DELTA,
-        longitudeDelta: LONGITUDE_DELTA,
-        title: destinationName
-      }
-
-       this.setState({ destination: initialdestination })
-       this.mapView.animateToRegion(initialdestination, 2000);
-       this.closePanel();
-       this.displayDirectionPoly();
-        //this._toggleBottomNavigationView();
-
-    }
-
-
     var mapStyle = [{ "elementType": "geometry", "stylers": [{ "color": "#242f3e" }] }, { "elementType": "labels.text.fill", "stylers": [{ "color": "#746855" }] }, { "elementType": "labels.text.stroke", "stylers": [{ "color": "#242f3e" }] }, { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] }, { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] }, { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#263c3f" }] }, { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#6b9a76" }] }, { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#38414e" }] }, { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#212a37" }] }, { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#9ca5b3" }] }, { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#746855" }] }, { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#1f2835" }] }, { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#f3d19c" }] }, { "featureType": "transit", "elementType": "geometry", "stylers": [{ "color": "#2f3948" }] }, { "featureType": "transit.station", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] }, { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#17263c" }] }, { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#515c6d" }] }, { "featureType": "water", "elementType": "labels.text.stroke", "stylers": [{ "color": "#17263c" }] }];
 
     return (
@@ -566,15 +573,271 @@ export default class NavigationScreen extends Component {
 
           <View>
 
-
             <SwipeModal
               isVisible={this.state.isVisible}
               onSwipeComplete={() => this.setState({ isVisible: false })}
               backgroundColor={'white'}
               swipeDirection="left">
-              <View style={{ flex: 1 }}>
-                <Text onPress={() => this.setState({ isVisible: false })} >I am the modal content!</Text>
+
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#000' }}>
+
+
+                <View style={styles.NavDrawerHeaderView}>
+
+
+                  <View style={{ flex: 1, flexDirection: 'row' }}>
+
+
+
+                    <TouchableOpacity style={{ flex: .3 }}>
+
+
+
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: .5 , alignItems: 'center', justifyContent: 'center'}}>
+
+                      {/* <View style={{ flexDirection: 'row', margin: 15, height: 60 }}>
+
+
+                        <TouchableOpacity style={{ flex: 1, justifyContent: 'flex-start' }}> */}
+
+
+                          <Image source={require('../images/edit_profile.png')}
+                            style={styles.ImageIconStyle} />
+
+
+                        </TouchableOpacity>
+
+                      {/* </View> */}
+
+                    {/* </TouchableOpacity> */}
+
+
+                    <TouchableOpacity style={{ flex: .2, alignItems: 'center' }}
+                      onPress={() => { this.ShowMoreAlert(!this.state.isVisible) }}>
+
+                      <Image source={require('../images/close.png')}
+                        style={styles.ImageStyle} />
+
+                    </TouchableOpacity>
+
+
+
+                  </View>
+                  <Text style={styles.TextStyleProfileName}>Gaurav Jain</Text>
+
+                </View>
+                <View style={styles.NavDrawerBottomView}>
+
+
+                  <View style={styles.inputWhereto}>
+
+                    <Image source={require('../images/search_where_to.png')} style={styles.ImageStyle} />
+
+                    <TextInput
+                      placeholderTextColor="#7b98a3"
+                      underlineColorAndroid='transparent'
+                      placeholder={'Where to?'}
+                    />
+                  </View>
+
+
+
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}>
+                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
+
+                      <Image source={require('../images/home.png')}
+                        style={styles.ImageIconStyle} />
+
+                    </TouchableOpacity>
+
+
+                    <TouchableOpacity style={{ flex: .60 }}>
+
+                      <Text style={styles.TextStyleOptionUpperHeading}> Home </Text>
+
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
+                      onPress={() => {
+                        this.ShowMoreAlert(!this.state.isVisible)
+                        this.props.navigation.navigate('Settings')
+                      }}>
+
+                      <Image source={require('../images/forward_arrow_left_drawer.png')}
+                        style={styles.ImageIconStyle}
+                      />
+
+                    </TouchableOpacity>
+                  </View>
+
+                  <Divider style={{ backgroundColor: 'black' }} />
+
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}>
+                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
+
+                      <Image source={require('../images/work.png')}
+                        style={styles.ImageIconStyle} />
+
+                    </TouchableOpacity>
+
+
+                    <TouchableOpacity style={{ flex: .60 }}>
+
+                      <Text style={styles.TextStyleOptionUpperHeading}> Work </Text>
+
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
+
+                      <Image source={require('../images/forward_arrow_left_drawer.png')}
+                        style={styles.ImageIconStyle}
+                      />
+
+                    </TouchableOpacity>
+                  </View>
+
+                  <Divider style={{ backgroundColor: 'black' }} />
+
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}
+                  >
+
+                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
+
+                      <Image source={require('../images/favorites.png')}
+                        style={styles.ImageIconStyle} />
+
+                    </TouchableOpacity>
+
+
+                    <TouchableOpacity style={{ flex: .60 }}>
+
+                      <Text style={styles.TextStyleOptionUpperHeading}> Favorites </Text>
+
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
+
+                      <Image source={require('../images/forward_arrow_left_drawer.png')}
+                        style={styles.ImageIconStyle}
+                      />
+
+                    </TouchableOpacity>
+
+                  </View>
+
+                  <Divider style={{ backgroundColor: 'black' }} />
+
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}>
+
+                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
+                      onPress={() => {
+                        this.ShowMoreAlert(!this.state.isVisible)
+                        this.props.navigation.navigate('Settings')
+                      }} >
+
+                      <Image source={require('../images/setting_icon.png')}
+                        style={styles.ImageIconStyle} />
+
+                    </TouchableOpacity>
+
+
+                    <TouchableOpacity style={{ flex: .60 }}
+                      onPress={() => {
+                        this.ShowMoreAlert(!this.state.isVisible)
+                        this.props.navigation.navigate('Settings')
+                      }} >
+
+                      <Text style={styles.TextStyleOptionUpperHeading}> Settings </Text>
+
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
+                      onPress={() => {
+                        this.ShowMoreAlert(!this.state.isVisible)
+                        this.props.navigation.navigate('Settings')
+                      }} >
+
+                      <Image source={require('../images/forward_arrow_left_drawer.png')}
+                        style={styles.ImageIconStyle}
+                      />
+
+                    </TouchableOpacity>
+                  </View>
+
+                  <Divider style={{ backgroundColor: 'black' }} />
+
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}>
+
+                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }} >
+
+                      <Image source={require('../images/facebookevents.png')}
+                        style={styles.ImageIconStyle} />
+
+                    </TouchableOpacity>
+
+
+                    <TouchableOpacity style={{ flex: .60 }} >
+
+                      <Text style={styles.TextStyleOptionUpperHeading}> Connect Facebook Events </Text>
+
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
+                    >
+
+                      <Image source={require('../images/forward_arrow_left_drawer.png')}
+                        style={styles.ImageIconStyle}
+                      />
+
+                    </TouchableOpacity>
+                  </View>
+
+                  <Divider style={{ backgroundColor: 'black' }} />
+
+
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}>
+                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
+                      onPress={() => {
+                        AsyncStorage.setItem('@is_login', "");
+                        this.ShowMoreAlert(!this.state.isVisible)
+                        this.props.navigation.navigate('Splash')
+                      }}>
+
+                      <Image source={require('../images/logout.png')}
+                        style={styles.ImageIconStyle} />
+
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: .60 }}
+                      onPress={() => {
+                        AsyncStorage.setItem('@is_login', "");
+                        this.ShowMoreAlert(!this.state.isVisible)
+                        this.props.navigation.navigate('Splash')
+                      }}>
+
+                      <Text style={styles.TextStyleOptionUpperHeading}> Logout </Text>
+
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
+                      onPress={() => {
+                        AsyncStorage.setItem('@is_login', "");
+                        this.ShowMoreAlert(!this.state.isVisible)
+                        this.props.navigation.navigate('Splash')
+                      }}>
+
+                      <Image source={require('../images/forward_arrow_left_drawer.png')}
+                        style={styles.ImageIconStyle}
+                      />
+
+                    </TouchableOpacity>
+                  </View>
+
+                </View>
               </View>
+
             </SwipeModal>
 
 
@@ -878,6 +1141,65 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginRight: 20
 
-  }
+  },
+  NavDrawerHeaderView: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: "#cee2ea",
+    height: '100%',
+    width: '100%',
+    flex: .3,
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20
+    // borderWidth: 1,
+    // borderColor: 'transparent'
+
+  },
+  NavDrawerBottomView: {
+    backgroundColor: "#fffeff",
+    height: '100%',
+    width: '100%',
+    flex: .7,
+    // borderWidth: 1,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20
+    // borderColor: 'transparent'
+
+  },
+  TextStyleProfileName: {
+    color: "#135165",
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 20
+  },
+  TextStyleOptionUpperHeading: {
+    color: "#4c4b4c",
+    fontSize: 16,
+    fontWeight: 'bold'
+  },
+
+  inputWhereto: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    backgroundColor: '#dae0e9',
+    height: 40,
+    fontSize: 20,
+    borderRadius: 5,
+    borderRadius: 30,
+    margin: 10
+  },
+
+
+  ImageStyle: {
+    margin: 5,
+    height: 15,
+    width: 15,
+    padding: 10,
+    marginTop: 10,
+    marginLeft: 10,
+    resizeMode: 'stretch',
+    alignItems: 'flex-start'
+  },
 
 });  
