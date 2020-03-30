@@ -11,7 +11,7 @@ import {
     ScrollView
 } from 'react-native';
 import { Divider } from 'react-native-elements';
-
+import HTML from 'react-native-render-html';
 
 class PrivacyScreen extends Component {
 
@@ -114,19 +114,27 @@ class PrivacyScreen extends Component {
                     <Divider style={{ backgroundColor: '#135165' }} />
 
 
-                 
+
                     <ScrollView>
 
-                        <Text> {this.state.screendata} </Text>
+                        <View style={styles.Textcontainer}>
 
-                        {this.state.loading && (
-                        <View style={styles.loading}>
-                            <ActivityIndicator size="large" color="#58666c" />
+                            <HTML html={this.state.screendata}></HTML>
+                            {/* <Text> {this.state.screendata} </Text> */}
+
+                            {this.state.loading && (
+                                <View style={styles.loading}>
+                                    <ActivityIndicator size="large" color="#58666c" />
+                                </View>
+                            )}
+
                         </View>
-                    )}
 
 
                     </ScrollView>
+
+
+
 
 
                 </View>
@@ -165,8 +173,13 @@ const styles = StyleSheet.create({
     TextStyleOptionDetail: {
         color: "#9b9a9c",
         fontSize: 16,
+    },
+    Textcontainer: {
+        flex: 1,
+        backgroundColor: '#cee2ea',
+        margin:10
     }
- 
+
 });
 
 export default PrivacyScreen;

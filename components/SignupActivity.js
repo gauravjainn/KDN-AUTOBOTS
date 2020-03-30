@@ -21,6 +21,7 @@ class SignupActivity extends Component {
         this.registerCall = this.registerCall.bind(this);
         this.state = {
             JSONResult: '',
+            name: '',
             username: '',
             email: '',
             password: '',
@@ -38,9 +39,10 @@ class SignupActivity extends Component {
     }
 
     CheckTextInput = () => {
-        if (this.state.username != '') {
-            if (this.state.email != '') {
-                if (this.state.password != '') {
+        if (this.state.name != '') {
+            if (this.state.username != '') {
+                if (this.state.email != '') {
+                    if (this.state.password != '') {
                         if (this.state.mobilenumber != '') {
                             this.showLoading();
                             this.registerCall();
@@ -48,18 +50,21 @@ class SignupActivity extends Component {
                         else {
                             alert('Please Enter Mobile Number');
                         }
-                    // } else {
-                    //     console.log("gender value====" + this.state.user);
-                    //     alert('Please Select Gender');
-                    // }
+                        // } else {
+                        //     console.log("gender value====" + this.state.user);
+                        //     alert('Please Select Gender');
+                        // }
+                    } else {
+                        alert('Please Enter Password');
+                    }
                 } else {
-                    alert('Please Enter Password');
+                    alert('Please Enter email');
                 }
             } else {
-                alert('Please Enter email');
+                alert('Please Enter username');
             }
         } else {
-            alert('Please Enter username');
+            alert('Please Enter name');
         }
     };
 
@@ -76,11 +81,13 @@ class SignupActivity extends Component {
 
     registerCall() {
 
+        console.log("gender---" + this.state.user)
         let formdata = new FormData();
         formdata.append("methodName", 'signup')
         formdata.append("email", this.state.email)
         formdata.append("password", this.state.password)
-        formdata.append("name", this.state.username)
+        formdata.append("name", this.state.name)
+        formdata.append("user_name", this.state.username)
         formdata.append("gender", this.state.user)
         formdata.append("mobileno", this.state.mobilenumber)
 
@@ -100,7 +107,7 @@ class SignupActivity extends Component {
                 console.log("server response===" + JSON.stringify(responseJson))
                 console.log("server STATUS  ===" + responseJson.replyStatus)
                 console.log("server MESSAGE  ===" + responseJson.replyMessage)
-                console.log("server value  ===" + responseJson.data.email)
+                // console.log("server value  ===" + responseJson.data.email)
             }).catch(err => {
                 this.hideLoading();
                 console.log(err)
@@ -140,6 +147,14 @@ class SignupActivity extends Component {
                         <TextInput
                             placeholderTextColor="#7f8ec5"
                             underlineColorAndroid='transparent'
+                            onChangeText={name => this.setState({ name })}
+                            placeholder={'Enter Full Name'}
+                            style={styles.input}
+                        />
+
+                        <TextInput
+                            placeholderTextColor="#7f8ec5"
+                            underlineColorAndroid='transparent'
                             onChangeText={username => this.setState({ username })}
                             placeholder={'Enter Username'}
                             style={styles.input}
@@ -166,6 +181,7 @@ class SignupActivity extends Component {
                         <Picker style={styles.input}
                             selectedValue={this.state.user}
                             onValueChange={this.updateUser}>
+                            <Picker.Item label="Please Select Gender" value="" />
                             <Picker.Item label="Male" value="male" />
                             <Picker.Item label="Female" value="female" />
                             <Picker.Item label="Other" value="other" />

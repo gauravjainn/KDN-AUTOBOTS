@@ -616,7 +616,7 @@ export default class NavigationScreen extends Component {
 
 
                   </View>
-                  <Text style={styles.TextStyleProfileName}>Gaurav Jain</Text>
+                  <Text style={styles.TextStyleProfileName}></Text>
 
                 </View>
 
@@ -628,8 +628,10 @@ export default class NavigationScreen extends Component {
                     <Image source={require('../images/search_where_to.png')} style={styles.ImageStyle} />
 
                     <TextInput
+
                       placeholderTextColor="#7b98a3"
                       underlineColorAndroid='transparent'
+                      editable={false}
                       placeholder={'Where to?'}
                     />
                   </View>
