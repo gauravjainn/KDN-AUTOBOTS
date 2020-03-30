@@ -20,12 +20,7 @@ class AboutScreen extends Component {
         this.showPageData = this.showPageData.bind(this);
         this.state = {
             JSONResult: '',
-            userId: '',
-            gender: '',
-            username: '',
-            fullname: '',
-            email: '',
-            mobileNumber: '',
+            screendata: '',
             baseUrl: 'http://kd.smeezy.com/api',
         };
     }
@@ -74,7 +69,8 @@ class AboutScreen extends Component {
                 this.hideLoading();
                 if (responseJson.replyStatus == 'success') {
 
-                    this.setState({ email: responseJson.data.email });
+                    this.setState({ screendata: responseJson.data.description });
+           
 
                 } else {
                     alert(responseJson.replyMessage);
@@ -117,11 +113,22 @@ class AboutScreen extends Component {
 
                     <Divider style={{ backgroundColor: '#135165' }} />
 
-                    {this.state.loading && (
+                
+
+                    <ScrollView>
+
+                        <Text> {this.state.screendata} </Text>
+
+                        {this.state.loading && (
                         <View style={styles.loading}>
                             <ActivityIndicator size="large" color="#58666c" />
                         </View>
                     )}
+
+
+                    </ScrollView>
+
+
 
                 </View>
 
@@ -161,7 +168,7 @@ const styles = StyleSheet.create({
         color: "#9b9a9c",
         fontSize: 16,
     }
- 
+
 });
 
 export default AboutScreen;

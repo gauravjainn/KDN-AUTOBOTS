@@ -79,8 +79,11 @@ class ChangePasswordScreen extends Component {
         formdata.append("methodName", 'change_password')
         formdata.append("user_id", this.state.userId)
         formdata.append("old_password", this.state.oldPassword)
-        formdata.append("password", this.state.password)
+        formdata.append("password", this.state.newPassword)
 
+        console.log("user_id  ===" + this.state.userId)
+        console.log("oldPassword  ===" + this.state.oldPassword)
+        console.log("Password  ===" + this.state.newPassword)
 
         var that = this;
         var url = that.state.baseUrl;
@@ -96,9 +99,8 @@ class ChangePasswordScreen extends Component {
                 this.hideLoading();
                 if (responseJson.replyStatus == 'success') {
 
-                    console.log("server response===" + JSON.stringify(responseJson))
-                    console.log("server email  ===" + responseJson.email)
-                 //   this.props.navigation.navigate('AccountInformation')
+                    alert(responseJson.replyMessage);
+               
 
                 } else {
                     alert(responseJson.replyMessage);

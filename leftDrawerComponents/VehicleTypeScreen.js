@@ -14,7 +14,10 @@ class VehicleTypeScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            JSONResult: ''
+            JSONResult: '',
+            showprivateCar: false,
+            showtaxi: false,
+            showMotorCycle: false
         };
     }
 
@@ -23,6 +26,30 @@ class VehicleTypeScreen extends Component {
     static navigationOptions = {
         title: 'vehicle type'
     };
+
+    componentDidMount = () => {
+        this.props.navigation.addListener('willFocus', this.load)
+    }
+
+
+    load = () => {
+
+        const { navigation } = this.props;
+        const vehicleType = navigation.getParam('type', 'NO-Type');
+        if (vehicleType === 'private') {
+            this.setState({ showprivateCar: true });
+        } else if (vehicleType === 'taxi') {
+            this.setState({ showtaxi: true });
+        } else if (vehicleType === 'motorcycle') {
+            this.setState({ showMotorCycle: true });
+        } else {
+            // do nothing
+        }
+
+        console.log("vehicle type====" + vehicleType)
+
+    }
+
 
 
     render() {
@@ -47,7 +74,7 @@ class VehicleTypeScreen extends Component {
                     </TouchableOpacity>
 
                     <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
-                     onPress={() => { this.props.navigation.navigate('Navigation') }}>
+                        onPress={() => { this.props.navigation.navigate('Navigation') }}>
 
                         <Image source={require('../images/close-green-icon.png')}
                             style={styles.ImageIconStyle} />
@@ -59,18 +86,31 @@ class VehicleTypeScreen extends Component {
 
 
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 30, backgroundColor: 'white', height: 85, margin: 20, borderRadius: 10 }}
-                    >
+                >
 
                     <TouchableOpacity style={{ flex: .30, justifyContent: 'flex-start' }}
-                      onPress={() => { this.props.navigation.navigate('VehicleDetail') }}>
+                        onPress={() => {
+                            this.props.navigation.navigate('VehicleDetail', {
+                                type: 'private'
+                            })
+                        }}>
 
-                        <Image source={require('../images/private-car-dactive.png')} />
+                        <Image source={this.state.showprivateCar === true ?
+                            require('../images/private-car-active.png') :
+                            require('../images/private-car-dactive.png')}
+                        />
+
 
                     </TouchableOpacity>
 
 
                     <TouchableOpacity style={{ lexDirection: 'column', flex: .70, justifyContent: 'flex-start' }}
-                      onPress={() => { this.props.navigation.navigate('VehicleDetail') }}>
+                        onPress={() => {
+                            this.props.navigation.navigate('VehicleDetail', {
+                                type: 'private'
+                            })
+                        }}>
+
 
                         <Text style={styles.TextStyleSettingOption}>Private </Text>
 
@@ -83,14 +123,27 @@ class VehicleTypeScreen extends Component {
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 5, backgroundColor: 'white', height: 85, margin: 20, borderRadius: 10 }}>
 
                     <TouchableOpacity style={{ flex: .30, justifyContent: 'flex-start' }}
-                    >
+                        onPress={() => {
+                            this.props.navigation.navigate('VehicleDetail', {
+                                type: 'taxi'
+                            })
+                        }}>
 
-                        <Image source={require('../images/taxi-car-dactive.png')} />
+
+                        <Image source={this.state.showtaxi === true ?
+                            require('../images/taxi-car-active.png') :
+                            require('../images/taxi-car-dactive.png')}
+                        />
 
                     </TouchableOpacity>
 
 
-                    <TouchableOpacity style={{ lexDirection: 'column', flex: .70, justifyContent: 'flex-start' }}>
+                    <TouchableOpacity style={{ lexDirection: 'column', flex: .70, justifyContent: 'flex-start' }}
+                        onPress={() => {
+                            this.props.navigation.navigate('VehicleDetail', {
+                                type: 'taxi'
+                            })
+                        }}>
 
                         <Text style={styles.TextStyleSettingOption}>Taxi </Text>
 
@@ -102,14 +155,29 @@ class VehicleTypeScreen extends Component {
 
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 5, backgroundColor: 'white', height: 85, margin: 20, borderRadius: 10 }}>
 
-                    <TouchableOpacity style={{ flex: .30, justifyContent: 'flex-start' }}>
+                    <TouchableOpacity style={{ flex: .30, justifyContent: 'flex-start' }}
+                        onPress={() => {
+                            this.props.navigation.navigate('VehicleDetail', {
+                                type: 'motorcycle'
+                            })
+                        }}>
 
-                        <Image source={require('../images/bike-dactive.png')} />
+
+                        <Image source={this.state.showMotorCycle === true ?
+                            require('../images/bike-active.png') :
+                            require('../images/bike-dactive.png')}
+                        />
+
 
                     </TouchableOpacity>
 
 
-                    <TouchableOpacity style={{ lexDirection: 'column', flex: .70, justifyContent: 'flex-start' }}>
+                    <TouchableOpacity style={{ lexDirection: 'column', flex: .70, justifyContent: 'flex-start' }}
+                        onPress={() => {
+                            this.props.navigation.navigate('VehicleDetail', {
+                                type: 'motorcycle'
+                            })
+                        }}>
 
                         <Text style={styles.TextStyleSettingOption}>Motorcycle </Text>
 

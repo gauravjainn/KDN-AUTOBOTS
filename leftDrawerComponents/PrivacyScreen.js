@@ -21,11 +21,7 @@ class PrivacyScreen extends Component {
         this.state = {
             JSONResult: '',
             userId: '',
-            gender: '',
-            username: '',
-            fullname: '',
-            email: '',
-            mobileNumber: '',
+            screendata: '',
             baseUrl: 'http://kd.smeezy.com/api',
         };
     }
@@ -58,7 +54,7 @@ class PrivacyScreen extends Component {
 
         let formdata = new FormData();
         formdata.append("methodName", 'getpagedata')
-        formdata.append("slug", 'About-us')
+        formdata.append("slug", 'privacy-policy ')
 
         var that = this;
         var url = that.state.baseUrl;
@@ -74,7 +70,7 @@ class PrivacyScreen extends Component {
                 this.hideLoading();
                 if (responseJson.replyStatus == 'success') {
 
-                    this.setState({ email: responseJson.data.email });
+                    this.setState({ screendata: responseJson.data.description });
 
                 } else {
                     alert(responseJson.replyMessage);
@@ -118,11 +114,20 @@ class PrivacyScreen extends Component {
                     <Divider style={{ backgroundColor: '#135165' }} />
 
 
-                    {this.state.loading && (
+                 
+                    <ScrollView>
+
+                        <Text> {this.state.screendata} </Text>
+
+                        {this.state.loading && (
                         <View style={styles.loading}>
                             <ActivityIndicator size="large" color="#58666c" />
                         </View>
                     )}
+
+
+                    </ScrollView>
+
 
                 </View>
             </ScrollView>

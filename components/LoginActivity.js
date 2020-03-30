@@ -93,7 +93,7 @@ class LoginActivity extends Component {
     //formdata.append("email", this.state.username)
   // formdata.append("password", this.state.password)
     formdata.append("email", "gaurav@yopmail.com")
-   formdata.append("password", "123456")
+   formdata.append("password", "12345")
 
     var that = this;
     var url = that.state.baseUrl;

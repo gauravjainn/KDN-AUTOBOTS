@@ -588,30 +588,21 @@ export default class NavigationScreen extends Component {
                   <View style={{ flex: 1, flexDirection: 'row' }}>
 
 
-
                     <TouchableOpacity style={{ flex: .3 }}>
-
 
 
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={{ flex: .5 , alignItems: 'center', justifyContent: 'center'}}>
+                    <TouchableOpacity style={{ flex: .5, alignItems: 'center', justifyContent: 'center' }}
+                      onPress={() => 
+                      { 
+                        this.ShowMoreAlert(!this.state.isVisible)
+                        this.props.navigation.navigate('Profile') }}>
 
-                      {/* <View style={{ flexDirection: 'row', margin: 15, height: 60 }}>
+                      <Image source={require('../images/edit_profile.png')}
+                        style={styles.ImageIconStyle} />
 
-
-                        <TouchableOpacity style={{ flex: 1, justifyContent: 'flex-start' }}> */}
-
-
-                          <Image source={require('../images/edit_profile.png')}
-                            style={styles.ImageIconStyle} />
-
-
-                        </TouchableOpacity>
-
-                      {/* </View> */}
-
-                    {/* </TouchableOpacity> */}
+                    </TouchableOpacity>
 
 
                     <TouchableOpacity style={{ flex: .2, alignItems: 'center' }}
