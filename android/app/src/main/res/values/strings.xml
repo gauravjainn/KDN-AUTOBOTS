@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">KDN AUTOBOTS</string>
+    <string name="current_night_mode" translatable="false">current_night_mode</string>
+    <string name="mapbox_access_token">pk.eyJ1IjoiZ2F1cmF2amFpbjA3NiIsImEiOiJjazhxZDk4b3IwMjR1M2dwaWhyZml5OXFyIn0.18tdIg6QGgMfrsgm4JpDBQ</string>
+
+
 </resources>
