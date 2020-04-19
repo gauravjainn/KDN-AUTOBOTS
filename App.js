@@ -25,7 +25,6 @@ import ProfileScreen from './leftDrawerComponents/ProfileScreen';
 import AboutScreen from './leftDrawerComponents/AboutScreen';
 import PrivacyScreen from './leftDrawerComponents/PrivacyScreen';
 
-
 const NavStack = createStackNavigator(
     {
         Login: { screen: LoginActivity },
@@ -50,7 +49,8 @@ const NavStack = createStackNavigator(
         ChangePassword : {screen: ChangePasswordScreen},
         Profile : {screen: ProfileScreen},
         About : {screen: AboutScreen},
-        Privacy : {screen: PrivacyScreen},
+        Privacy : {screen: PrivacyScreen}
+
         
     },
     {

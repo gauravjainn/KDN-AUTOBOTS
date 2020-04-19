@@ -2,28 +2,27 @@ import React, { Component } from 'react';
 import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
-import { View, Text, StyleSheet, Image, PermissionsAndroid, Platform, Dimensions, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Image, PermissionsAndroid, Platform, Dimensions, TouchableOpacity, Modal, TextInput, NativeModules } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapViewDirections from 'react-native-maps-directions';
 import { BottomSheet } from 'react-native-btr';
 import SwipeablePanel from 'rn-swipeable-panel';
 import getDirections from 'react-native-google-maps-directions'
-import MapViewNavigation from 'react-native-maps-navigation'
 import SwipeModal from 'react-native-modal';
 import { Divider } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
-
 
 const { width, height } = Dimensions.get('window')
 
 const ASPECT_RATIO = width / height
 const LATITUDE_DELTA = 0.0922
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO
-
+var destinationlat, destinationlong;
+var currentLatitude, currentLongitude;
 var directionData;
 var _ = require('lodash');
 console.disableYellowBox = true;
-
+const { ToastModule } = NativeModules;
 
 export default class NavigationScreen extends Component {
 
@@ -62,45 +61,6 @@ export default class NavigationScreen extends Component {
   }
 
 
-  handleGetDirections = () => {
-    const data = {
-      source: {
-        latitude: this.state.currentLatitude,
-        longitude: this.state.currentLongitude
-      },
-      destination: {
-        latitude: this.state.destination.latitude,
-        longitude: this.state.destination.longitude
-      },
-      params: [
-        {
-          key: "travelmode",
-          value: "driving"        // may be "walking", "bicycling" or "transit" as well
-        },
-        {
-          key: "dir_action",
-          value: "navigate"       // this instantly initializes navigation using the given travel mode
-        }
-      ]
-      // waypoints: [
-      //   {
-      //     latitude: -33.8600025,
-      //     longitude: 18.697452
-      //   },
-      //   {
-      //     latitude: -33.8600026,
-      //     longitude: 18.697453
-      //   },
-      //      {
-      //     latitude: -33.8600036,
-      //     longitude: 18.697493
-      //   }
-      // ]
-    }
-
-
-    getDirections(data)
-  }
 
   ShowCustomAlert(visible) {
     this.setState({ Alert_Visibility: visible });
@@ -123,6 +83,10 @@ export default class NavigationScreen extends Component {
     this.setState({ visible: !this.state.visible });
   };
 
+  _showToast() {
+
+    ToastModule.showToast(currentLatitude, currentLongitude, destinationlat, destinationlong);
+  }
 
   componentDidMount = () => {
     this.props.navigation.addListener('willFocus', this.load)
@@ -160,26 +124,26 @@ export default class NavigationScreen extends Component {
   load = () => {
 
     const { navigation } = this.props;
-    var lat = parseFloat(navigation.getParam('destinationLatitude', ''))
-    var long = parseFloat(navigation.getParam('destinationLongitude', ''))
+    destinationlat = parseFloat(navigation.getParam('destinationLatitude', ''))
+    destinationlong = parseFloat(navigation.getParam('destinationLongitude', ''))
     var destinationName = navigation.getParam('destinationName', '')
 
-    console.log("lat=====" + lat)
+    console.log("lat=====" + destinationlat)
     console.log("destinationName=====" + destinationName)
     if (destinationName == '') {
 
     } else {
       var initialdestination = {
-        latitude: lat,
-        longitude: long,
+        latitude: destinationlat,
+        longitude: destinationlong,
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LONGITUDE_DELTA,
         title: destinationName
       }
 
       directionData = {
-        latitude: lat,
-        longitude: long,
+        latitude: destinationlat,
+        longitude: destinationlong,
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LONGITUDE_DELTA,
         title: destinationName
@@ -189,7 +153,7 @@ export default class NavigationScreen extends Component {
       this.mapView.animateToRegion(initialdestination, 2000);
       this.closePanel();
       this.displayDirectionPoly();
-      // this._toggleBottomNavigationView();
+      this._toggleBottomNavigationView();
 
     }
 
@@ -201,9 +165,10 @@ export default class NavigationScreen extends Component {
     Geolocation.getCurrentPosition(
       //Will give you the current location
       (position) => {
-        const currentLongitude = JSON.stringify(position.coords.longitude);
+
+        currentLongitude = JSON.stringify(position.coords.longitude);
         //getting the Longitude from the location json
-        const currentLatitude = JSON.stringify(position.coords.latitude);
+        currentLatitude = JSON.stringify(position.coords.latitude);
         //getting the Latitude from the location json
         that.setState({ currentLongitude: currentLongitude });
         //Setting state Longitude to re re-render the Longitude Text
@@ -232,9 +197,10 @@ export default class NavigationScreen extends Component {
     that.watchID = Geolocation.watchPosition((position) => {
       //Will give you the location on location change
       console.log(position);
-      const currentLongitude = JSON.stringify(position.coords.longitude);
+
+      currentLongitude = JSON.stringify(position.coords.longitude);
       //getting the Longitude from the location json
-      const currentLatitude = JSON.stringify(position.coords.latitude);
+      currentLatitude = JSON.stringify(position.coords.latitude);
       //getting the Latitude from the location json
       that.setState({ currentLongitude: currentLongitude });
       //Setting state Longitude to re re-render the Longitude Text
@@ -269,25 +235,44 @@ export default class NavigationScreen extends Component {
 
 
   render() {
-    var mapStyle = [{ "elementType": "geometry", "stylers": [{ "color": "#242f3e" }] }, { "elementType": "labels.text.fill", "stylers": [{ "color": "#746855" }] }, { "elementType": "labels.text.stroke", "stylers": [{ "color": "#242f3e" }] }, { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] }, { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] }, { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#263c3f" }] }, { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#6b9a76" }] }, { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#38414e" }] }, { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#212a37" }] }, { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#9ca5b3" }] }, { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#746855" }] }, { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#1f2835" }] }, { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#f3d19c" }] }, { "featureType": "transit", "elementType": "geometry", "stylers": [{ "color": "#2f3948" }] }, { "featureType": "transit.station", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] }, { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#17263c" }] }, { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#515c6d" }] }, { "featureType": "water", "elementType": "labels.text.stroke", "stylers": [{ "color": "#17263c" }] }];
+    var mapStyle = [{ "elementType": "geometry", "stylers": [{ "color": "#475fd0" }] }, 
+    { "elementType": "labels.text.fill", "stylers": [{ "color": "#7f8dc3" }] }, 
+    { "elementType": "labels.text.stroke", "stylers": [{ "color": "#475fd0" }] }, 
+    { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#00228c" }] }, 
+    { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#00228c" }] }, 
+    { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#1c8352" }] }, 
+    { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#6b9a76" }] }, 
+    { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#242F3E" }] }, 
+    { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#212a37" }] }, 
+    { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#9ca5b3" }] }, 
+    { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#00228c" }] }, 
+    { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#1f2835" }] },
+     { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#f3d19c" }] }, 
+     { "featureType": "transit", "elementType": "geometry", "stylers": [{ "color": "#1787d1" }] }, 
+     { "featureType": "transit.station", "elementType": "labels.text.fill", "stylers": [{ "color": "#7f8dc3" }] }, 
+     { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#173ad4" }] },
+      { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#c3c9d3" }] }, 
+      { "featureType": "water", "elementType": "labels.text.stroke", "stylers": [{ "color": "#173ad4" }] }];
 
     return (
       <View style={styles.MainContainer}>
         <View style={{ width: '100%', top: '15%', zIndex: 2, position: 'absolute', backgroundColor: 'transparent' }}>
           <View style={{ flex: 1, flexDirection: 'column' }}>
             <GooglePlacesAutocomplete
-
               placeholder='Where to?'
+              placeholderTextColor={'#7f8dc3'}
               minLength={2} // minimum length of text to search
               autoFocus={false}
               returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
               keyboardAppearance={'light'} // Can be left out for default keyboardAppearance https://facebook.github.io/react-native/docs/textinput.html#keyboardappearance
               listViewDisplayed={this.state.showPlacesList}
+              enablePoweredByContainer={false}
               onChangeText={ValueHolder => this.GetValueFunction(ValueHolder)}
               textInputProps={{
                 onFocus: () => this.setState({ showPlacesList: true }),
                 onBlur: () => this.setState({ showPlacesList: false }),
               }}
+              
               // listViewDisplayed='auto' 
               fetchDetails={true}
               renderDescription={row => row.description} // custom description render
@@ -295,20 +280,20 @@ export default class NavigationScreen extends Component {
                 console.log("data===" + JSON.stringify(data));
                 console.log("details===" + JSON.stringify(details));
                 console.log("geometry===" + JSON.stringify(details.geometry.location));
-                var lat = parseFloat(details.geometry.location.lat)
-                var long = parseFloat(details.geometry.location.lng)
+                destinationlat = parseFloat(details.geometry.location.lat)
+                destinationlong = parseFloat(details.geometry.location.lng)
 
                 var initialdestination = {
-                  latitude: lat,
-                  longitude: long,
+                  latitude: destinationlat,
+                  longitude: destinationlong,
                   latitudeDelta: LATITUDE_DELTA,
                   longitudeDelta: LONGITUDE_DELTA,
                   title: data.description
                 }
 
                 directionData = {
-                  latitude: lat,
-                  longitude: long,
+                  latitude: destinationlat,
+                  longitude: destinationlong,
                   latitudeDelta: LATITUDE_DELTA,
                   longitudeDelta: LONGITUDE_DELTA,
                   title: data.description
@@ -319,10 +304,10 @@ export default class NavigationScreen extends Component {
                 this.mapView.animateToRegion(initialdestination, 2000);
                 this.closePanel();
                 this.displayDirectionPoly();
-                //  this._toggleBottomNavigationView();
+                this._toggleBottomNavigationView();
 
-                console.log("lat===" + lat);
-                console.log("long===" + long);
+                console.log("lat===" + destinationlat);
+                console.log("long===" + destinationlong);
 
 
               }}
@@ -339,15 +324,37 @@ export default class NavigationScreen extends Component {
 
               styles={{
                 textInputContainer: {
-                  width: '100%'
+                  alignSelf: 'center',
+                  width: '90%',
+                  borderWidth: 0,
+                  fontSize: 30,
+                  borderBottomLeftRadius: 20,
+                  borderBottomRightRadius: 20,
+                  borderTopLeftRadius: 20,
+                  borderTopRightRadius: 20,
+                  backgroundColor: '#ffffff',
+
                 },
                 description: {
                   color: 'white',
                   fontWeight: 'bold'
                 },
                 predefinedPlacesDescription: {
-                  color: '#1faadb'
-                }
+                  color: '#9b999b'
+                },
+                row: {
+                  padding: 13,
+                  height: 44,
+                  marginLeft: 10,
+                  marginRight: 10,
+                  flexDirection: 'row',
+                },
+                separator: {
+                  height: StyleSheet.hairlineWidth,
+                  backgroundColor: '#c8c7cc',
+                  marginLeft: 20,
+                  marginRight: 20,
+                },
               }}
 
               //  currentLocation={true} // Will add a 'Current location' button at the top of the predefined places list
@@ -432,7 +439,9 @@ export default class NavigationScreen extends Component {
               <TouchableOpacity
                 style={styles.getDirectionButton}
                 activeOpacity={.5}
-                onPress={this.handleGetDirections}>
+                //onPress={this.handleGetDirections}
+                onPress={this._showToast}
+              >
                 <Text style={styles.directionText}> Start Navigation </Text>
               </TouchableOpacity>
             </View>
@@ -455,7 +464,6 @@ export default class NavigationScreen extends Component {
                   Explore
               </Text>
                 <View style={{ flex: 1, flexDirection: 'row' }}>
-
 
                   <TouchableOpacity
                     onPress={() => {
@@ -594,10 +602,10 @@ export default class NavigationScreen extends Component {
                     </TouchableOpacity>
 
                     <TouchableOpacity style={{ flex: .5, alignItems: 'center', justifyContent: 'center' }}
-                      onPress={() => 
-                      { 
+                      onPress={() => {
                         this.ShowMoreAlert(!this.state.isVisible)
-                        this.props.navigation.navigate('Profile') }}>
+                        this.props.navigation.navigate('Profile')
+                      }}>
 
                       <Image source={require('../images/edit_profile.png')}
                         style={styles.ImageIconStyle} />
@@ -968,24 +976,28 @@ export default class NavigationScreen extends Component {
         </View>
         <View style={styles.bottomView}>
           <View style={{ flex: 1, flexDirection: 'row' }}>
-            <TouchableOpacity style={{ flex: .33 }}
-              onPress={() => { this.ShowMoreAlert(!this.state.isVisible) }}>
 
-              <Image source={require('../images/grid.png')}
-                style={styles.ImageIconStyle} />
-              <Text style={styles.reportNameStyle}> More </Text>
-
-            </TouchableOpacity>
-
-            <TouchableOpacity style={{ flex: .33 }}
+            <TouchableOpacity style={{ flex: .5, flexDirection: 'column' }}
               onPress={() => { this.openPanel(); }}>
 
-              <Image source={require('../images/compass.png')}
+              <Image source={require('../images/explore_blue.png')}
                 style={styles.ImageIconStyle} />
               <Text style={styles.reportNameStyle}> Explore </Text>
 
             </TouchableOpacity>
 
+            <TouchableOpacity style={{ flex: .5 }}
+              onPress={() => { this.ShowMoreAlert(!this.state.isVisible) }}>
+
+              <Image source={require('../images/location_blue.png')}
+                style={styles.ImageIconStyle} />
+              <Text style={styles.reportNameStyle}>  Locations </Text>
+
+            </TouchableOpacity>
+
+
+
+            {/* 
             <TouchableOpacity style={{ flex: .33 }}
               onPress={() => { this.ShowCustomAlert(!this.state.Alert_Visibility) }}>
 
@@ -993,7 +1005,7 @@ export default class NavigationScreen extends Component {
                 style={styles.ImageIconStyle} />
               <Text style={styles.reportNameStyle}> Report </Text>
 
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
           </View>
         </View>
@@ -1014,6 +1026,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
+    backgroundColor: '#7f8dc3',
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'flex-start',
@@ -1028,9 +1041,11 @@ const styles = StyleSheet.create({
   bottomView: {
     width: '100%',
     height: '8%',
-    backgroundColor: '#2b303c',
+    backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     position: 'absolute', //Here is the trick
     bottom: 0, //Here is the trick
   },
@@ -1126,9 +1141,9 @@ const styles = StyleSheet.create({
   },
 
   reportNameStyle: {
-    color: '#b9c0c9',
+    color: '#032085',
     textAlign: 'center',
-    fontSize: 18
+    fontSize: 16
   },
   reportBottomStyle: {
     color: '#6d7378',
