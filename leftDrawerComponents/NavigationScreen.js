@@ -344,7 +344,7 @@ export default class NavigationScreen extends Component {
                 },
                 row: {
                   padding: 13,
-                  height: 44,
+                  height: 50,
                   marginLeft: 10,
                   marginRight: 10,
                   flexDirection: 'row',
@@ -383,7 +383,7 @@ export default class NavigationScreen extends Component {
             />
           </View>
         </View>
-        <View style={{ width: '100%', height: '92%', top: '0%', zIndex: 1, position: 'absolute' }} >
+        <View style={{ width: '100%', height: '90%', top: '0%', zIndex: 1, position: 'absolute' }} >
           <MapView
             style={styles.mapStyle}
             showsUserLocation={true}
@@ -1026,7 +1026,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#7f8dc3',
+    backgroundColor: '#475fd0',
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'flex-start',
@@ -1040,7 +1040,7 @@ const styles = StyleSheet.create({
   },
   bottomView: {
     width: '100%',
-    height: '8%',
+    height: '10%',
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
