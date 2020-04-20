@@ -8,9 +8,9 @@ import MapViewDirections from 'react-native-maps-directions';
 import { BottomSheet } from 'react-native-btr';
 import SwipeablePanel from 'rn-swipeable-panel';
 import getDirections from 'react-native-google-maps-directions'
-import SwipeModal from 'react-native-modal';
 import { Divider } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
+import Dialog, { DialogContent } from 'react-native-popup-dialog';
 
 const { width, height } = Dimensions.get('window')
 
@@ -66,8 +66,12 @@ export default class NavigationScreen extends Component {
     this.setState({ Alert_Visibility: visible });
   }
 
-  ShowMoreAlert(visible) {
-    this.setState({ isVisible: visible });
+  ShowSavedLocationsAlert() {
+    this.setState({ isVisible: true });
+  }
+
+  HideSavedLocationsAlert() {
+    this.setState({ isVisible: false });
   }
 
   openPanel = () => {
@@ -235,24 +239,24 @@ export default class NavigationScreen extends Component {
 
 
   render() {
-    var mapStyle = [{ "elementType": "geometry", "stylers": [{ "color": "#475fd0" }] }, 
-    { "elementType": "labels.text.fill", "stylers": [{ "color": "#7f8dc3" }] }, 
-    { "elementType": "labels.text.stroke", "stylers": [{ "color": "#475fd0" }] }, 
-    { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#00228c" }] }, 
-    { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#00228c" }] }, 
-    { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#1c8352" }] }, 
-    { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#6b9a76" }] }, 
-    { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#242F3E" }] }, 
-    { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#212a37" }] }, 
-    { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#9ca5b3" }] }, 
-    { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#00228c" }] }, 
+    var mapStyle = [{ "elementType": "geometry", "stylers": [{ "color": "#475fd0" }] },
+    { "elementType": "labels.text.fill", "stylers": [{ "color": "#7f8dc3" }] },
+    { "elementType": "labels.text.stroke", "stylers": [{ "color": "#475fd0" }] },
+    { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#00228c" }] },
+    { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#00228c" }] },
+    { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#1c8352" }] },
+    { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#6b9a76" }] },
+    { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#242F3E" }] },
+    { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#212a37" }] },
+    { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#9ca5b3" }] },
+    { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#00228c" }] },
     { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#1f2835" }] },
-     { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#f3d19c" }] }, 
-     { "featureType": "transit", "elementType": "geometry", "stylers": [{ "color": "#1787d1" }] }, 
-     { "featureType": "transit.station", "elementType": "labels.text.fill", "stylers": [{ "color": "#7f8dc3" }] }, 
-     { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#173ad4" }] },
-      { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#c3c9d3" }] }, 
-      { "featureType": "water", "elementType": "labels.text.stroke", "stylers": [{ "color": "#173ad4" }] }];
+    { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#f3d19c" }] },
+    { "featureType": "transit", "elementType": "geometry", "stylers": [{ "color": "#1787d1" }] },
+    { "featureType": "transit.station", "elementType": "labels.text.fill", "stylers": [{ "color": "#7f8dc3" }] },
+    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#173ad4" }] },
+    { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#c3c9d3" }] },
+    { "featureType": "water", "elementType": "labels.text.stroke", "stylers": [{ "color": "#173ad4" }] }];
 
     return (
       <View style={styles.MainContainer}>
@@ -272,7 +276,7 @@ export default class NavigationScreen extends Component {
                 onFocus: () => this.setState({ showPlacesList: true }),
                 onBlur: () => this.setState({ showPlacesList: false }),
               }}
-              
+
               // listViewDisplayed='auto' 
               fetchDetails={true}
               renderDescription={row => row.description} // custom description render
@@ -327,6 +331,7 @@ export default class NavigationScreen extends Component {
                   alignSelf: 'center',
                   width: '90%',
                   borderWidth: 0,
+                  textAlign: 'center',
                   fontSize: 30,
                   borderBottomLeftRadius: 20,
                   borderBottomRightRadius: 20,
@@ -449,8 +454,11 @@ export default class NavigationScreen extends Component {
 
 
           <SwipeablePanel
-            fullWidth={false}
+            fullWidth
             isActive={this.state.swipeablePanelActive}
+            closeOnTouchOutside={true}
+            showCloseButton={true}
+            noBackgroundOpacity={true}
             onClose={() => this.closePanel()}>
             <View style={styles.bottomNearestNavigationView}>
               <View
@@ -460,7 +468,7 @@ export default class NavigationScreen extends Component {
                   justifyContent: 'space-between',
                 }}>
 
-                <Text style={{ textAlign: 'center', fontSize: 20 }}>
+                <Text style={{ textAlign: 'center', fontSize: 20, marginBottom: 20 }}>
                   Explore
               </Text>
                 <View style={{ flex: 1, flexDirection: 'row' }}>
@@ -499,6 +507,7 @@ export default class NavigationScreen extends Component {
                     <Text style={styles.headline}> Atm's </Text>
 
                   </TouchableOpacity>
+
 
 
 
@@ -543,6 +552,7 @@ export default class NavigationScreen extends Component {
 
                 </View>
                 <View style={{ flex: 1, flexDirection: 'row' }}>
+
                   <TouchableOpacity
                     onPress={() => {
                       this.closePanel();
@@ -581,266 +591,124 @@ export default class NavigationScreen extends Component {
 
           <View>
 
-            <SwipeModal
-              isVisible={this.state.isVisible}
-              onSwipeComplete={() => this.setState({ isVisible: false })}
-              backgroundColor={'white'}
-              swipeDirection="left">
 
-              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#000' }}>
+            <Dialog
+              visible={this.state.isVisible}
+              onTouchOutside={() => {
+                this.setState({ isVisible: false });
+              }}
+              width={320}
+              height={220} >
 
 
-                <View style={styles.NavDrawerHeaderView}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 30 }}>
 
+                <TouchableOpacity style={{ flex: .3 }}>
 
-                  <View style={{ flex: 1, flexDirection: 'row' }}>
+                </TouchableOpacity>
 
+                <TouchableOpacity style={{ flex: .5, alignItems: 'center', justifyContent: 'center' }}>
 
-                    <TouchableOpacity style={{ flex: .3 }}>
+                </TouchableOpacity>
 
 
-                    </TouchableOpacity>
+                <TouchableOpacity style={{ flex: .2, alignItems: 'center' }}
+                  onPress={() => { this.setState({ isVisible: false }) }}>
 
-                    <TouchableOpacity style={{ flex: .5, alignItems: 'center', justifyContent: 'center' }}
-                      onPress={() => {
-                        this.ShowMoreAlert(!this.state.isVisible)
-                        this.props.navigation.navigate('Profile')
-                      }}>
+                  <Image source={require('../images/close_red_icon.png')}
+                    style={styles.ImageStyle} />
 
-                      <Image source={require('../images/edit_profile.png')}
-                        style={styles.ImageIconStyle} />
+                </TouchableOpacity>
 
-                    </TouchableOpacity>
-
-
-                    <TouchableOpacity style={{ flex: .2, alignItems: 'center' }}
-                      onPress={() => { this.ShowMoreAlert(!this.state.isVisible) }}>
-
-                      <Image source={require('../images/close.png')}
-                        style={styles.ImageStyle} />
-
-                    </TouchableOpacity>
-
-
-
-                  </View>
-                  <Text style={styles.TextStyleProfileName}></Text>
-
-                </View>
-
-                <View style={styles.NavDrawerBottomView}>
-
-
-                  <View style={styles.inputWhereto}>
-
-                    <Image source={require('../images/search_where_to.png')} style={styles.ImageStyle} />
-
-                    <TextInput
-
-                      placeholderTextColor="#7b98a3"
-                      underlineColorAndroid='transparent'
-                      editable={false}
-                      placeholder={'Where to?'}
-                    />
-                  </View>
-
-
-
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}>
-                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
-
-                      <Image source={require('../images/home.png')}
-                        style={styles.ImageIconStyle} />
-
-                    </TouchableOpacity>
-
-
-                    <TouchableOpacity style={{ flex: .60 }}>
-
-                      <Text style={styles.TextStyleOptionUpperHeading}> Home </Text>
-
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
-                      onPress={() => {
-                        this.ShowMoreAlert(!this.state.isVisible)
-                        this.props.navigation.navigate('Settings')
-                      }}>
-
-                      <Image source={require('../images/forward_arrow_left_drawer.png')}
-                        style={styles.ImageIconStyle}
-                      />
-
-                    </TouchableOpacity>
-                  </View>
-
-                  <Divider style={{ backgroundColor: 'black' }} />
-
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}>
-                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
-
-                      <Image source={require('../images/work.png')}
-                        style={styles.ImageIconStyle} />
-
-                    </TouchableOpacity>
-
-
-                    <TouchableOpacity style={{ flex: .60 }}>
-
-                      <Text style={styles.TextStyleOptionUpperHeading}> Work </Text>
-
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
-
-                      <Image source={require('../images/forward_arrow_left_drawer.png')}
-                        style={styles.ImageIconStyle}
-                      />
-
-                    </TouchableOpacity>
-                  </View>
-
-                  <Divider style={{ backgroundColor: 'black' }} />
-
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}
-                  >
-
-                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
-
-                      <Image source={require('../images/favorites.png')}
-                        style={styles.ImageIconStyle} />
-
-                    </TouchableOpacity>
-
-
-                    <TouchableOpacity style={{ flex: .60 }}>
-
-                      <Text style={styles.TextStyleOptionUpperHeading}> Favorites </Text>
-
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
-
-                      <Image source={require('../images/forward_arrow_left_drawer.png')}
-                        style={styles.ImageIconStyle}
-                      />
-
-                    </TouchableOpacity>
-
-                  </View>
-
-                  <Divider style={{ backgroundColor: 'black' }} />
-
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}>
-
-                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
-                      onPress={() => {
-                        this.ShowMoreAlert(!this.state.isVisible)
-                        this.props.navigation.navigate('Settings')
-                      }} >
-
-                      <Image source={require('../images/setting_icon.png')}
-                        style={styles.ImageIconStyle} />
-
-                    </TouchableOpacity>
-
-
-                    <TouchableOpacity style={{ flex: .60 }}
-                      onPress={() => {
-                        this.ShowMoreAlert(!this.state.isVisible)
-                        this.props.navigation.navigate('Settings')
-                      }} >
-
-                      <Text style={styles.TextStyleOptionUpperHeading}> Settings </Text>
-
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
-                      onPress={() => {
-                        this.ShowMoreAlert(!this.state.isVisible)
-                        this.props.navigation.navigate('Settings')
-                      }} >
-
-                      <Image source={require('../images/forward_arrow_left_drawer.png')}
-                        style={styles.ImageIconStyle}
-                      />
-
-                    </TouchableOpacity>
-                  </View>
-
-                  <Divider style={{ backgroundColor: 'black' }} />
-
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}>
-
-                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }} >
-
-                      <Image source={require('../images/facebookevents.png')}
-                        style={styles.ImageIconStyle} />
-
-                    </TouchableOpacity>
-
-
-                    <TouchableOpacity style={{ flex: .60 }} >
-
-                      <Text style={styles.TextStyleOptionUpperHeading}> Connect Facebook Events </Text>
-
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
-                    >
-
-                      <Image source={require('../images/forward_arrow_left_drawer.png')}
-                        style={styles.ImageIconStyle}
-                      />
-
-                    </TouchableOpacity>
-                  </View>
-
-                  <Divider style={{ backgroundColor: 'black' }} />
-
-
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}>
-                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
-                      onPress={() => {
-                        AsyncStorage.setItem('@is_login', "");
-                        this.ShowMoreAlert(!this.state.isVisible)
-                        this.props.navigation.navigate('Splash')
-                      }}>
-
-                      <Image source={require('../images/logout.png')}
-                        style={styles.ImageIconStyle} />
-
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={{ flex: .60 }}
-                      onPress={() => {
-                        AsyncStorage.setItem('@is_login', "");
-                        this.ShowMoreAlert(!this.state.isVisible)
-                        this.props.navigation.navigate('Splash')
-                      }}>
-
-                      <Text style={styles.TextStyleOptionUpperHeading}> Logout </Text>
-
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
-                      onPress={() => {
-                        AsyncStorage.setItem('@is_login', "");
-                        this.ShowMoreAlert(!this.state.isVisible)
-                        this.props.navigation.navigate('Splash')
-                      }}>
-
-                      <Image source={require('../images/forward_arrow_left_drawer.png')}
-                        style={styles.ImageIconStyle}
-                      />
-
-                    </TouchableOpacity>
-                  </View>
-
-                </View>
               </View>
 
-            </SwipeModal>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}>
+
+                <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
+
+                  <Image source={require('../images/home_blue_icon.png')}
+                    style={styles.ImageIconStyle} />
+
+                </TouchableOpacity>
+
+
+                <TouchableOpacity style={{ flex: .60 }}>
+
+                  <Text style={styles.TextStyleOptionUpperHeading}> Home </Text>
+
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
+                  onPress={() => {
+                    this.ShowSavedLocationsAlert(!this.state.isVisible)
+                    this.props.navigation.navigate('Settings')
+                  }}>
+
+                  <Image source={require('../images/forward_arrow_left_drawer.png')}
+                    style={styles.ImageIconStyle}
+                  />
+
+                </TouchableOpacity>
+
+              </View>
+
+              <Divider style={{ backgroundColor: 'black' }} />
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}>
+                <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
+
+                  <Image source={require('../images/work_blue_icon.png')}
+                    style={styles.ImageIconStyle} />
+
+                </TouchableOpacity>
+
+
+                <TouchableOpacity style={{ flex: .60 }}>
+
+                  <Text style={styles.TextStyleOptionUpperHeading}> Work </Text>
+
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
+
+                  <Image source={require('../images/forward_arrow_left_drawer.png')}
+                    style={styles.ImageIconStyle}
+                  />
+
+                </TouchableOpacity>
+              </View>
+
+              <Divider style={{ backgroundColor: 'black' }} />
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}
+              >
+
+                <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
+
+                  <Image source={require('../images/favorites_blue_icon.png')}
+                    style={styles.ImageIconStyle} />
+
+                </TouchableOpacity>
+
+
+                <TouchableOpacity style={{ flex: .60 }}>
+
+                  <Text style={styles.TextStyleOptionUpperHeading}> Favorites </Text>
+
+                </TouchableOpacity>
+
+                <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
+
+                  <Image source={require('../images/forward_arrow_left_drawer.png')}
+                    style={styles.ImageIconStyle}
+                  />
+
+                </TouchableOpacity>
+
+              </View>
+
+
+            </Dialog>
 
 
             <Modal
@@ -987,7 +855,8 @@ export default class NavigationScreen extends Component {
             </TouchableOpacity>
 
             <TouchableOpacity style={{ flex: .5 }}
-              onPress={() => { this.ShowMoreAlert(!this.state.isVisible) }}>
+              // onPress={() => { this.ShowSavedLocationsAlert(!this.state.isVisible) }}
+              onPress={() => { this.setState({ isVisible: true }) }}>
 
               <Image source={require('../images/location_blue.png')}
                 style={styles.ImageIconStyle} />
@@ -1102,6 +971,7 @@ const styles = StyleSheet.create({
     textAlign: 'center', // <-- the magic
     fontWeight: 'bold',
     fontSize: 15,
+    color: 'grey',
     marginTop: 0,
     width: 200
   },
@@ -1154,10 +1024,10 @@ const styles = StyleSheet.create({
   NavDrawerHeaderView: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: "#cee2ea",
-    height: '100%',
+    backgroundColor: "#ffffff",
+    height: '50%',
     width: '100%',
-    flex: .3,
+    flex: .1,
     borderTopRightRadius: 20,
     borderTopLeftRadius: 20
     // borderWidth: 1,
@@ -1166,7 +1036,7 @@ const styles = StyleSheet.create({
   },
   NavDrawerBottomView: {
     backgroundColor: "#fffeff",
-    height: '100%',
+    height: '50%',
     width: '100%',
     flex: .7,
     // borderWidth: 1,
@@ -1183,8 +1053,7 @@ const styles = StyleSheet.create({
   },
   TextStyleOptionUpperHeading: {
     color: "#4c4b4c",
-    fontSize: 16,
-    fontWeight: 'bold'
+    fontSize: 16
   },
 
   inputWhereto: {
@@ -1210,5 +1079,7 @@ const styles = StyleSheet.create({
     resizeMode: 'stretch',
     alignItems: 'flex-start'
   },
+
+
 
 });  
