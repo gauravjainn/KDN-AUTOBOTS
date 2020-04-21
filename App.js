@@ -7,7 +7,6 @@ import SignupActivity from './components/SignupActivity';
 import ForgotPasswordActivity from './components/ForgotPasswordActivity';
 import OTPActivity from './components/OTPActivity';
 import NavigationScreen from './leftDrawerComponents/NavigationScreen';
-import HomeActivity from './leftDrawerComponents/HomeActivity';
 import ResetPasswordActivity from './components/ResetPasswordActivity';
 import SplashActivity from './components/SplashActivity';
 import RestaurantList from './components/RestaurantList';
@@ -24,6 +23,7 @@ import ChangePasswordScreen from './leftDrawerComponents/ChangePasswordScreen';
 import ProfileScreen from './leftDrawerComponents/ProfileScreen';
 import AboutScreen from './leftDrawerComponents/AboutScreen';
 import PrivacyScreen from './leftDrawerComponents/PrivacyScreen';
+import HomeLocationListScreen from './components/HomeLocationListActivity';
 
 const NavStack = createStackNavigator(
     {
@@ -32,7 +32,6 @@ const NavStack = createStackNavigator(
         Signup: { screen: SignupActivity },
         ForgotPassword: { screen: ForgotPasswordActivity },
         Otp: { screen: OTPActivity },
-        Home: { screen: HomeActivity },
         ResetPassword: { screen: ResetPasswordActivity },
         Splash: { screen: SplashActivity },
         Restaurant : { screen: RestaurantList },
@@ -49,9 +48,8 @@ const NavStack = createStackNavigator(
         ChangePassword : {screen: ChangePasswordScreen},
         Profile : {screen: ProfileScreen},
         About : {screen: AboutScreen},
-        Privacy : {screen: PrivacyScreen}
-
-        
+        Privacy : {screen: PrivacyScreen},
+        HomeLocationList : {screen: HomeLocationListScreen}
     },
     {
         initialRouteName: 'Splash',

@@ -5,9 +5,7 @@ import Geolocation from '@react-native-community/geolocation';
 import { View, Text, StyleSheet, Image, PermissionsAndroid, Platform, Dimensions, TouchableOpacity, Modal, TextInput, NativeModules } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapViewDirections from 'react-native-maps-directions';
-import { BottomSheet } from 'react-native-btr';
 import SwipeablePanel from 'rn-swipeable-panel';
-import getDirections from 'react-native-google-maps-directions'
 import { Divider } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
 import Dialog, { DialogContent } from 'react-native-popup-dialog';
@@ -33,6 +31,7 @@ export default class NavigationScreen extends Component {
       Alert_Visibility: false,
       showPlacesList: false,
       swipeablePanelActive: false,
+      swipeablePanelNaviagtion: false,
       initialPosition: {
         latitude: 0,
         longitude: 0,
@@ -54,7 +53,7 @@ export default class NavigationScreen extends Component {
         title: '',
       },
 
-      visible: false,
+      // visible: false,
       isVisible: false,
       TextValue: '',
     }
@@ -82,10 +81,18 @@ export default class NavigationScreen extends Component {
     this.setState({ swipeablePanelActive: false });
   };
 
-  _toggleBottomNavigationView = () => {
-    //Toggling the visibility state of the bottom sheet
-    this.setState({ visible: !this.state.visible });
+  openNaviagtionPanel = () => {
+    this.setState({ swipeablePanelNaviagtion: true });
   };
+
+  closeNaviagtionPanel = () => {
+    this.setState({ swipeablePanelNaviagtion: false });
+  };
+
+  // _toggleBottomNavigationView = () => {
+  //   //Toggling the visibility state of the bottom sheet
+  //   this.setState({ visible: !this.state.visible });
+  // };
 
   _showToast() {
 
@@ -157,7 +164,7 @@ export default class NavigationScreen extends Component {
       this.mapView.animateToRegion(initialdestination, 2000);
       this.closePanel();
       this.displayDirectionPoly();
-      this._toggleBottomNavigationView();
+      this.openNaviagtionPanel();
 
     }
 
@@ -308,7 +315,7 @@ export default class NavigationScreen extends Component {
                 this.mapView.animateToRegion(initialdestination, 2000);
                 this.closePanel();
                 this.displayDirectionPoly();
-                this._toggleBottomNavigationView();
+                this.openNaviagtionPanel();
 
                 console.log("lat===" + destinationlat);
                 console.log("long===" + destinationlong);
@@ -422,35 +429,26 @@ export default class NavigationScreen extends Component {
               // onDragEnd={(e) => alert(JSON.stringify(e.nativeEvent.coordinate))}
               title={this.state.destination.title}
               //   onPress={this.displayDirectionPoly}
-              onPress={this._toggleBottomNavigationView}
+              onPress={this.openNaviagtionPanel}
             //  description={'This is a description of the marker'}
             />
 
           </MapView>
 
+          <SwipeablePanel
+            fullWidth
+            isActive={this.state.swipeablePanelNaviagtion}
+            closeOnTouchOutside={false}
+            showCloseButton={true}
+            noBackgroundOpacity={true}
+            onClose={() => this.closeNaviagtionPanel()}>
+            <View style={styles.bottomNearestNavigationView}>
 
 
-          <BottomSheet
-            visible={this.state.visible}
-            //setting the visibility state of the bottom shee
-            onBackButtonPress={this._toggleBottomNavigationView}
-            //Toggling the visibility state on the click of the back botton
-            onBackdropPress={this._toggleBottomNavigationView}
-          //Toggling the visibility state on the clicking out side of the sheet
-          >
-            {/*Bottom Sheet inner View*/}
-            <View style={styles.bottomNavigationView}>
 
-              <TouchableOpacity
-                style={styles.getDirectionButton}
-                activeOpacity={.5}
-                //onPress={this.handleGetDirections}
-                onPress={this._showToast}
-              >
-                <Text style={styles.directionText}> Start Navigation </Text>
-              </TouchableOpacity>
             </View>
-          </BottomSheet>
+
+          </SwipeablePanel>
 
 
           <SwipeablePanel
@@ -578,6 +576,7 @@ export default class NavigationScreen extends Component {
                         currentLatitude: this.state.currentLatitude,
                         currentLongitude: this.state.currentLongitude
                       })
+
                       //    this.props.navigation.navigate('Hospital')
                     }}>
                     <Image source={require('../images/Hospital.png')} style={styles.ImageIconStyle} />
@@ -624,7 +623,11 @@ export default class NavigationScreen extends Component {
 
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}>
 
-                <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
+                <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
+                  onPress={() => {
+                    this.setState({ isVisible: false })
+                    this.props.navigation.navigate('HomeLocationList')
+                  }}>
 
                   <Image source={require('../images/home_blue_icon.png')}
                     style={styles.ImageIconStyle} />
@@ -632,16 +635,20 @@ export default class NavigationScreen extends Component {
                 </TouchableOpacity>
 
 
-                <TouchableOpacity style={{ flex: .60 }}>
+                <TouchableOpacity style={{ flex: .60 }}
+                  onPress={() => {
+                    this.setState({ isVisible: false })
+                    this.props.navigation.navigate('HomeLocationList')
+                  }}>
 
                   <Text style={styles.TextStyleOptionUpperHeading}> Home </Text>
 
                 </TouchableOpacity>
 
                 <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
-                  onPress={() => {
-                    this.ShowSavedLocationsAlert(!this.state.isVisible)
-                    this.props.navigation.navigate('Settings')
+                   onPress={() => {
+                    this.setState({ isVisible: false })
+                    this.props.navigation.navigate('HomeLocationList')
                   }}>
 
                   <Image source={require('../images/forward_arrow_left_drawer.png')}
@@ -925,13 +932,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  bottomNavigationView: {
-    backgroundColor: '#fff',
-    width: '100%',
-    height: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  // bottomNavigationView: {
+  //   backgroundColor: '#fff',
+  //   width: '100%',
+  //   height: 300,
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  // },
   getDirectionButton: {
     marginTop: 20,
     width: 300,
