@@ -111,7 +111,9 @@ class LoginActivity extends Component {
      
           this.saveLoginUserId(responseJson.data.id.toString());
       
-          this.props.navigation.navigate('Navigation')
+          this.props.navigation.navigate('LandingScreen')
+
+         // this.props.navigation.navigate('Navigation')
           // this.props.navigation.navigate('Home', {
           //     username: responseJson.data.email
           // })

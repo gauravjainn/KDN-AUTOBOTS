@@ -16,7 +16,7 @@ const ASPECT_RATIO = width / height
 const LATITUDE_DELTA = 0.0922
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO
 
-class HomeLocationListActivity extends Component {
+class WorkLocationListActivity extends Component {
 
     constructor(props) {
         super(props);
@@ -107,7 +107,7 @@ class HomeLocationListActivity extends Component {
 
                     <TouchableOpacity style={{ flex: .60, justifyContent: 'center', alignItems: 'center' }}>
 
-                        <Text style={styles.TextStyleScreenHeading}> Home </Text>
+                        <Text style={styles.TextStyleScreenHeading}> Work </Text>
 
                     </TouchableOpacity>
 
@@ -143,6 +143,9 @@ class HomeLocationListActivity extends Component {
 
                         </TouchableOpacity>
                     </View>
+
+
+
 
                     <Text style={styles.TextStyleFb}> Please select end location </Text>
 
@@ -363,4 +366,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default HomeLocationListActivity;
+export default WorkLocationListActivity;

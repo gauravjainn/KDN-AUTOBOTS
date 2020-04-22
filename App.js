@@ -24,6 +24,9 @@ import ProfileScreen from './leftDrawerComponents/ProfileScreen';
 import AboutScreen from './leftDrawerComponents/AboutScreen';
 import PrivacyScreen from './leftDrawerComponents/PrivacyScreen';
 import HomeLocationListScreen from './components/HomeLocationListActivity';
+import WorkLocationListScreen from './components/WorkLocationListActivity';
+import LandingScreenActivity from './components/LandingScreenActivity';
+
 
 const NavStack = createStackNavigator(
     {
@@ -49,7 +52,10 @@ const NavStack = createStackNavigator(
         Profile : {screen: ProfileScreen},
         About : {screen: AboutScreen},
         Privacy : {screen: PrivacyScreen},
-        HomeLocationList : {screen: HomeLocationListScreen}
+        HomeLocationList : {screen: HomeLocationListScreen},
+        WorkLocationList : {screen: WorkLocationListScreen},
+        LandingScreen : {screen: LandingScreenActivity},
+        
     },
     {
         initialRouteName: 'Splash',

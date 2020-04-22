@@ -645,6 +645,8 @@ export default class NavigationScreen extends Component {
 
                 </TouchableOpacity>
 
+                
+
                 <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
                    onPress={() => {
                     this.setState({ isVisible: false })
@@ -662,7 +664,11 @@ export default class NavigationScreen extends Component {
               <Divider style={{ backgroundColor: 'black' }} />
 
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', height: 60 }}>
-                <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
+                <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
+                 onPress={() => {
+                  this.setState({ isVisible: false })
+                  this.props.navigation.navigate('WorkLocationList')
+                }}>
 
                   <Image source={require('../images/work_blue_icon.png')}
                     style={styles.ImageIconStyle} />
@@ -670,13 +676,23 @@ export default class NavigationScreen extends Component {
                 </TouchableOpacity>
 
 
-                <TouchableOpacity style={{ flex: .60 }}>
+                <TouchableOpacity style={{ flex: .60 }}
+                 onPress={() => {
+                  this.setState({ isVisible: false })
+                  this.props.navigation.navigate('WorkLocationList')
+                }}>
+
 
                   <Text style={styles.TextStyleOptionUpperHeading}> Work </Text>
 
                 </TouchableOpacity>
 
-                <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}>
+                <TouchableOpacity style={{ flex: .20, alignItems: 'center', justifyContent: 'center' }}
+                  onPress={() => {
+                    this.setState({ isVisible: false })
+                    this.props.navigation.navigate('WorkLocationList')
+                  }}>
+
 
                   <Image source={require('../images/forward_arrow_left_drawer.png')}
                     style={styles.ImageIconStyle}
